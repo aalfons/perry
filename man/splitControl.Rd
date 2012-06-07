@@ -1,0 +1,52 @@
+\name{splitControl}
+\alias{splitControl}
+\title{Control object for random data splits}
+\usage{
+  splitControl(m, R = 1, grouping = NULL)
+}
+\arguments{
+  \item{m}{an integer giving the number of observations or
+  groups of observations to be used as test data.}
+
+  \item{R}{an integer giving the number of random data
+  splits.}
+
+  \item{grouping}{a factor specifying groups of
+  observations.}
+}
+\value{
+  An object of class \code{"splitControl"} with the
+  following components:
+
+  \item{m}{an integer giving the number of observations or
+  groups of observations to be used as test data.}
+
+  \item{R}{an integer giving the number of random data
+  splits.}
+
+  \item{grouping}{if supplied, a factor specifying groups
+  of observations.  The data will then be split according
+  to the groups rather than individual observations such
+  that all observations within a group belong either to the
+  training or test data.}
+}
+\description{
+  Generate an object that controls how to split \eqn{n}
+  observations or groups of observations into training and
+  test data to be used for Monte Carlo cross-validation
+  (also known as random splitting or random subsampling).
+}
+\examples{
+set.seed(1234)  # set seed for reproducibility
+perrySplits(20, splitControl(m = 5))
+perrySplits(20, splitControl(m = 5, R = 10))
+}
+\author{
+  Andreas Alfons
+}
+\seealso{
+  \code{\link{perrySplits}}, \code{\link{foldControl}},
+  \code{\link{cvFolds}}
+}
+\keyword{utilities}
+
