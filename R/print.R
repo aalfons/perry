@@ -6,13 +6,9 @@
 #' @S3method print cvFolds
 print.cvFolds <- function(x, ...) {
     # print general information
-    if(x$n == x$K) {
-        cvText <- "Leave-one-out CV"
-    } else {
-        cvText <- sprintf("%d-fold CV", x$K)
-        if(x$R > 1) {
-            cvText <- paste("Repeated", cvText, "with", x$R, "replications")
-        }
+    cvText <- getPrefix(x)
+    if(x$R > 1) {
+        cvText <- paste(cvText, "with", x$R, "replications")
     }
     cat(paste("\n", cvText, ":", sep=""))
     # print information on folds (add space between folds and subsets)
@@ -36,7 +32,7 @@ print.cvFolds <- function(x, ...) {
 print.randomSplits <- function(x, ...) {
     # print general information
     if(x$R == 1) {
-        cat("\nRandom splits\n")
+        cat("\nRandom split\n")
         cn <- if(is.null(x$grouping)) "Index" else "Group index"
     } else {
         cat(sprintf("\n%d random splits\n", x$R))
@@ -71,3 +67,34 @@ print.bootSamples <- function(x, ...) {
     # return object invisibly
     invisible(x)
 }
+
+#' @S3method print perry
+#' @S3method print summary.perry
+print.perry <- print.summary.perry <- function(x, ...) {
+    # print cross-validation results
+    cat(getPrefix(x$splits), "results:\n")
+    print(x$pe, ...)
+    # return object invisibly
+    invisible(x)
+}
+
+
+## get prefix for print methods
+
+getPrefix <- function(x) UseMethod("getPrefix")
+
+getPrefix.cvFolds <- function(x) {
+    if(x$n == x$K) {
+        prefix <- "Leave-one-out CV"
+    } else prefix <- sprintf("%d-fold CV", x$K)
+}
+
+getPrefix.randomSplits <- function(x) "Monte Carlo CV"
+
+getPrefix.bootSamples <- function(x) {
+    if(x$type == "out-of-bag") {
+        prefix <- "Out-of-bag bootstrap"
+    } else prefix <- sprintf("%s bootstrap", x$type)
+}
+
+getPrefix.default <- function(x) "Prediction error"

@@ -121,7 +121,7 @@ bootControl <- function(R = 1, type = c("0.632", "out-of-bag"),
     type <- match.arg(type)
     if(!is.null(grouping)) grouping <- as.factor(grouping)
     # construct control object
-    control <- list(R=R, grouping=grouping)
+    control <- list(R=R, type=type, grouping=grouping)
     class(control) <- "bootControl"
     control
 }
@@ -238,6 +238,7 @@ perrySplits.splitControl <- function(n, control) {
 perrySplits.bootControl <- function(n, control) {
     # initializations
     R <- control$R
+    type <- control$type
     grouping <- control$grouping
     # check arguments
     n <- if(is.null(grouping)) round(rep(n, length.out=1)) else nlevels(grouping)
@@ -255,7 +256,7 @@ perrySplits.bootControl <- function(n, control) {
         newR <- length(replace)
     }
     # construct and return object
-    splits <- list(n=n, R=R, samples=samples)
+    splits <- list(n=n, R=R, type=type, samples=samples)
     if(!is.null(grouping)) {
         splits$grouping <- split(seq_along(grouping), grouping)
     }
@@ -328,25 +329,6 @@ cvFolds <- function(n, K = 5, R = 1,
 }
 
 
-## retrieve CV folds for r-th replication
-getSubsetList <- function(x, ...) UseMethod("getSubsetList")
-
-getSubsetList.cvFolds <- function(x, r = 1, ...) {
-    # split permuted items according to the folds
-    subsetList <- split(x$subsets[, r], x$which)
-    # in case of grouped data, the list contains the group indices in each CV 
-    # fold, so the indices of the respective observations need to be extracted
-    if(!is.null(grouping <- x$grouping)) {
-        subsetList <- lapply(subsetList, 
-            function(s) {
-                unlist(grouping[s], use.names=FALSE)
-            })
-    }
-    # return list of indices for CV folds
-    subsetList
-}
-
-
 #' Random data splits for Monte Carlo cross-validation
 #' 
 #' Split observations or groups of observations into training and test data to 
@@ -406,4 +388,45 @@ bootSamples <- function(n, R = 1, type = c("0.632", "out-of-bag"),
         grouping = NULL) {
     # construct control object and call perrySplits()
     perrySplits(n, bootControl(R=R, type=type, grouping=grouping))
+}
+
+
+## retrieve indices for r-th replication
+getIndices <- function(x, ...) UseMethod("getIndices")
+
+getIndices.cvFolds <- function(x, r = 1, ...) {
+    # split permuted items according to the folds
+    subsets <- split(x$subsets[, r], x$which)
+    # in case of grouped data, the list contains the group indices in each CV 
+    # fold, so the indices of the respective observations need to be extracted
+    if(!is.null(grouping <- x$grouping)) {
+        subsets <- lapply(subsets, 
+            function(s) unlist(grouping[s], use.names=FALSE))
+    }
+    # return list of indices for CV folds
+    subsets
+}
+
+getIndices.randomSplits <- function(x, r = 1, ...) {
+    subsets <- x$subsets[, r]
+    # in case of grouped data, the matrix contains the indices of the groups in 
+    # the test data, so the indices of the respective observations need to be 
+    # extracted
+    if(!is.null(grouping <- x$grouping)) {
+        subsets <- unlist(grouping[subsets], use.names=FALSE)
+    }
+    # return matrix of indices for test data
+    subsets
+}
+
+getIndices.bootSamples <- function(x, r = 1, ...) {
+    samples <- x$samples[, r]
+    # in case of grouped data, the matrix contains the indices of the groups in 
+    # the bootstrap samples, so the indices of the respective observations need 
+    # to be extracted
+    if(!is.null(grouping <- x$grouping)) {
+        samples <- unlist(grouping[samples], use.names=FALSE)
+    }
+    # return matrix of indices for bootstrap samples
+    samples
 }
