@@ -19,10 +19,18 @@ Description: Tools that allow developers to write functions for resampling-based
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
+    'accessors.R'
+    'aggregate.R'
     'cost.R'
     'perryFit.R'
+    'perryReshape.R'
+    'perrySelect.R'
     'perrySplits.R'
     'perryTool.R'
+    'perryTuning.R'
     'predict.R'
     'print.R'
+    'selectBest.R'
+    'subset.R'
+    'summary.R'
     'utils.R'

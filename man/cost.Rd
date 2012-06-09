@@ -98,7 +98,7 @@ rtmspe(coleman$Y, predict(fit), trim = 0.1, includeSE = TRUE)
   \emph{The American Statistician}, \bold{46}(1), 27--29.
 }
 \seealso{
-  \code{\link{cvFit}}, \code{\link{cvTuning}}
+  \code{\link{perryFit}}, \code{\link{perryTuning}}
 }
 \keyword{utilities}
 

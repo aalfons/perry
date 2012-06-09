@@ -40,10 +40,9 @@ computeCost <- function(fun, y, yHat, args = list(), keepSE = TRUE) {
             # cost function returns list of prediction error and standard error
             if(keepSE) {
                 peNames <- names(pe[[1]])
-                pe <- list(sapply(pe, function(x) x[[1]]), 
-                    sapply(pe, function(x) x[[2]]))
+                pe <- list(sapply(pe, "[[", 1), sapply(pe, "[[", 2))
                 names(pe) <- peNames
-            } else pe <- sapply(pe, function(x) x[[1]])
+            } else pe <- sapply(pe, "[[", 1)
         }
     } else {
         pe <- doCall(fun, y, yHat, args=args)
@@ -73,6 +72,15 @@ defaultNames <- function(p) {
         "PE"
     } else if(p > 0) {
         paste("PE", seq_len(p), sep="")
+    } else character()
+}
+
+# default names for model fits
+defaultFitNames <- function(m) {
+    if(m == 1) {
+        "Fit"
+    } else if(m > 0) {
+        paste("Fit", seq_len(m), sep="")
     } else character()
 }
 

@@ -114,10 +114,11 @@ perryFit.call <- function(object, data = NULL, x = NULL, y, cost = rmspe,
     if(is.null(getS3method("perryTool", class(splits), optional=TRUE))) {
         splits <- perrySplits(n, control=splits)
     }
-    ## call workhorse function to perform cross-validation
+    ## call workhorse function to estimate the prediction error
     pe <- perryTool(object, data, x, y, cost=cost, splits=splits, names=names, 
         predictArgs=predictArgs, costArgs=costArgs, envir=envir)
-    ## compute average results in case of repeated CV
+    ## compute average results in case of more than one replication and 
+    ## prepare standard errors
     if(is.list(pe)) {
         R <- 1  # only one replication
         se <- pe[[2]]

@@ -52,7 +52,7 @@
 #' Oehlert, G.W. (1992) A note on the delta method.  \emph{The American 
 #' Statistician}, \bold{46}(1), 27--29.
 #' 
-#' @seealso \code{\link{cvFit}}, \code{\link{cvTuning}}
+#' @seealso \code{\link{perryFit}}, \code{\link{perryTuning}}
 #' 
 #' @examples 
 #' # fit an MM-regression model

@@ -78,6 +78,47 @@ print.perry <- print.summary.perry <- function(x, ...) {
     invisible(x)
 }
 
+#' @S3method print perrySelect
+#' @S3method print summary.perrySelect
+print.perrySelect <- print.summary.perrySelect <- function(x, best = TRUE, ...) {
+    # print cross-validation results
+    cat("\n")
+    cat(getPrefix(x$splits), "results:\n")
+    print(x$pe, ...)
+    # print optimal model if requested
+    if(isTRUE(best)) {
+        cat("\nBest model:\n")
+        best <- x$best
+        bestFit <- x$pe[best, "Fit"]
+        if(is.factor(bestFit)) bestFit <- as.character(bestFit)
+        names(bestFit) <- names(best)
+        print(bestFit, ...)
+    }
+    # return object invisibly
+    invisible(x)
+}
+
+#' @S3method print perryTuning
+#' @S3method print summary.perryTuning
+print.perryTuning <- print.summary.perryTuning <- function(x, best = TRUE, ...) {
+    # print cross-validation results
+    cat("\n")
+    cat(getPrefix(x$splits), "results:\n")
+    print(cbind(x$tuning, x$pe[, -1, drop=FALSE]), ...)
+    # print optimal value for tuning parameters if requested
+    if(isTRUE(best)) {
+        if(ncol(x$tuning) == 1) {
+            cat("\nOptimal tuning parameter:\n")
+        } else cat("\nOptimal tuning parameters:\n")
+        best <- x$best
+        optimalTuning <- x$tuning[best, , drop=FALSE]
+        rownames(optimalTuning) <- names(best)
+        print(optimalTuning, ...)
+    }
+    # return object invisibly
+    invisible(x)
+}
+
 
 ## get prefix for print methods
 
