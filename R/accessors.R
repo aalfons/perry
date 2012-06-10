@@ -3,6 +3,47 @@
 #         KU Leuven
 # ----------------------
 
+#' Access or set information on resampling-based prediction error results
+#' 
+#' Retrieve or set the names of resampling-based prediction error results, 
+#' retrieve or set the identifiers of the models, or retrieve the number of 
+#' prediction error results or included models.
+#' 
+#' @rdname accessors
+#' @name accessors
+#' 
+#' @param x  an object inheriting from class \code{"perry"} or 
+#' \code{"perrySelect"} that contains prediction error results.
+#' @param value  a vector of replacement values.
+#' 
+#' @return 
+#' \code{peNames} returns the names of the prediction error results.  The 
+#' replacement function thereby returns them invisibly.
+#' 
+#' \code{fits} returns the identifiers of the models for objects inheriting 
+#' from class \code{"perrySelect"} and \code{NULL} for objects inheriting from 
+#' class \code{"perry"}.  The replacement function thereby returns those values 
+#' invisibly.
+#' 
+#' \code{npe} returns the number of prediction error results.
+#' 
+#' \code{nfits} returns the number of models included in objects inheriting 
+#' from class \code{"perrySelect"} and \code{NULL} for objects inheriting from 
+#' class \code{"perry"}.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#' \code{\link{perryTuning}}
+#' 
+## @example inst/doc/examples/example-accessors.R
+#' 
+#' @keywords utilities
+
+NULL
+
+
+#' @rdname accessors
 #' @export
 peNames <- function(x) UseMethod("peNames")
 
@@ -13,6 +54,8 @@ peNames.perry <- function(x) names(x$pe)
 peNames.perrySelect <- function(x) names(x$pe)[-1]
 
 
+#' @rdname accessors
+#' @usage peNames(x) <- value
 #' @export
 "peNames<-" <- function(x, value) UseMethod("peNames<-")
 
@@ -35,6 +78,7 @@ peNames.perrySelect <- function(x) names(x$pe)[-1]
 }
 
 
+#' @rdname accessors
 #' @export
 fits <- function(x) UseMethod("fits")
 
@@ -45,6 +89,8 @@ fits.perry <- function(x) NULL
 fits.perrySelect <- function(x) x$pe$Fit
 
 
+#' @rdname accessors
+#' @usage fits(x) <- value
 #' @export
 "fits<-" <- function(x, value) UseMethod("fits<-")
 
@@ -64,6 +110,7 @@ fits.perrySelect <- function(x) x$pe$Fit
 }
 
 
+#' @rdname accessors
 #' @export
 npe <- function(x) UseMethod("npe")
 
@@ -74,6 +121,7 @@ npe.perry <- function(x) length(x$pe)
 npe.perrySelect <- function(x) ncol(x$pe) - 1
 
 
+#' @rdname accessors
 #' @export
 nfits <- function(x) UseMethod("nfits")
 

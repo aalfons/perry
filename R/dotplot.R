@@ -3,14 +3,60 @@
 #         KU Leuven
 # ----------------------
 
-#' @S3method dotplot perry
+#' Dot plots of resampling-based prediction error results
+#' 
+#' Produce dot plots of (average) results for resampling-based prediction 
+#' error measures.
+#' 
+#' For objects with multiple columns of prediction error results, conditional 
+#' dot plots are produced.
+#' 
+#' @method dotplot perry
+#' 
+#' @param x  an object inheriting from class \code{"perry"} or 
+#' \code{"perrySelect"} that contains prediction error results.
+#' @param data  currently ignored.
+#' @param subset  a character, integer or logical vector indicating the subset 
+#' of models for which to plot the prediction error results.
+#' @param select  a character, integer or logical vector indicating the columns 
+#' of prediction error results to be plotted.
+#' @param seFactor  a numeric value giving the multiplication factor of the 
+#' standard error for displaying error bars.  Error bars can be suppressed by 
+#' setting this to \code{NA}.
+#' @param \dots  additional arguments to be passed to the \code{"formula"} 
+#' method of \code{\link[lattice:xyplot]{dotplot}}.
+#' 
+#' @return An object of class \code{"trellis"} is returned invisibly.  The 
+#' \code{\link[lattice:update.trellis]{update}} method can be used to update 
+#' components of the object and the \code{\link[lattice:print.trellis]{print}} 
+#' method (usually called by default) will plot it on an appropriate plotting 
+#' device.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#' \code{\link{perryTuning}}, \code{\link[=plot.perry]{plot}}, 
+#' \code{\link[=xyplot.perry]{xyplot}}, \code{\link[=bwplot.perry]{bwplot}}, 
+#' \code{\link[=densityplot.perry]{densityplot}}
+#' 
+## @example inst/doc/examples/example-dotplot.R
+#' 
+#' @keywords hplot
+#' 
+#' @import lattice
+#' @export
+
 dotplot.perry <- function(x, data, select = NULL, seFactor = NA, ...) {
     # construct data frame in lattice format and call internal function
     tmp <- getLatticeData(x, select, reps=FALSE, seFactor=seFactor)
     localDotplot(tmp$PE, tmp$lower, tmp$upper, ...)
 }
 
-#' @S3method dotplot perrySelect
+
+#' @rdname dotplot.perry
+#' @method dotplot perrySelect
+#' @export
+
 dotplot.perrySelect <- function(x, data, subset = NULL, select = NULL, 
         seFactor = x$seFactor, ...) {
     # construct data frame in lattice format and call internal function

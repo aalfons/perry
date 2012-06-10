@@ -3,7 +3,46 @@
 #         KU Leuven
 # ----------------------
 
-#' @S3method densityplot perry
+#' Kernel density plots of resampling-based prediction error results
+#' 
+#' Produce kernel density plots of results for resampling-based prediction 
+#' error measures.
+#' 
+#' For objects with multiple columns of prediction error results, conditional 
+#' kernel density plots are produced.
+#' 
+#' @method densityplot perry
+#' 
+#' @param x  an object inheriting from class \code{"perry"} or 
+#' \code{"perrySelect"} that contains prediction error results.
+#' @param data  currently ignored.
+#' @param subset  a character, integer or logical vector indicating the subset 
+#' of models for which to plot the prediction error results.
+#' @param select  a character, integer or logical vector indicating the columns 
+#' of prediction error results to be plotted.
+#' @param \dots  additional arguments to be passed to the \code{"formula"} 
+#' method of \code{\link[lattice:histogram]{densityplot}}.
+#' 
+#' @return An object of class \code{"trellis"} is returned invisibly.  The 
+#' \code{\link[lattice:update.trellis]{update}} method can be used to update 
+#' components of the object and the \code{\link[lattice:print.trellis]{print}} 
+#' method (usually called by default) will plot it on an appropriate plotting 
+#' device.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#' \code{\link{perryTuning}}, \code{\link[=plot.perry]{plot}}, 
+#' \code{\link[=bwplot.perry]{bwplot}}, \code{\link[=xyplot.perry]{xyplot}}, 
+#' \code{\link[=dotplot.perry]{dotplot}}
+#' 
+## @example inst/doc/examples/example-densityplot.R
+#' 
+#' @keywords hplot
+#' 
+#' @import lattice
+#' @export
+
 densityplot.perry <- function(x, data, select = NULL, ...) {
     # initializations
     if(x$splits$R == 1) stop("density plot is not meaningful for one replication")
@@ -12,7 +51,11 @@ densityplot.perry <- function(x, data, select = NULL, ...) {
     localDensityplot(PE, ...)
 }
 
-#' @S3method densityplot perrySelect
+
+#' @rdname densityplot.perry
+#' @method densityplot perrySelect
+#' @export
+
 densityplot.perrySelect <- function(x, data, subset = NULL, select = NULL, ...) {
     # initializations
     if(x$splits$R == 1) stop("density plot is is not meaningful for one replication")
