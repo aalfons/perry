@@ -3,11 +3,9 @@
 #         KU Leuven
 # ----------------------
 
-#' Summarize prediction error results
+#' Summarize resampling-based prediction error results
 #' 
-#' Produce a summary of results from (repeated) \eqn{K}-fold cross-validation, 
-#' (repeated) random splitting (also known as random subsampling or Monte Carlo 
-#' cross-validation), or the bootstrap.  
+#' Produce a summary of resampling-based prediction error results.  
 #' 
 #' @method summary perry
 #' 

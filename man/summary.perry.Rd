@@ -2,7 +2,7 @@
 \alias{summary.perry}
 \alias{summary.perrySelect}
 \alias{summary.perryTuning}
-\title{Summarize prediction error results}
+\title{Summarize resampling-based prediction error results}
 \usage{
   \method{summary}{perry} (object, ...)
 
@@ -25,10 +25,8 @@
   \code{object}.
 }
 \description{
-  Produce a summary of results from (repeated) \eqn{K}-fold
-  cross-validation, (repeated) random splitting (also known
-  as random subsampling or Monte Carlo cross-validation),
-  or the bootstrap.
+  Produce a summary of resampling-based prediction error
+  results.
 }
 \author{
   Andreas Alfons

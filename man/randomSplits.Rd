@@ -65,7 +65,7 @@ randomSplits(20, m = 5, R = 10)
 }
 \seealso{
   \code{\link{perrySplits}}, \code{\link{splitControl}},
-  \code{\link{cvFolds}}
+  \code{\link{cvFolds}}, \code{\link{bootSamples}}
 }
 \keyword{utilities}
 

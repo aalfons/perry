@@ -59,8 +59,8 @@ perrySplits(20, foldControl(K = 5, R = 10))
   Andreas Alfons
 }
 \seealso{
-  \code{\link{perrySplits}}, \code{\link{splitControl}},
-  \code{\link{cvFolds}}
+  \code{\link{perrySplits}}, \code{\link{cvFolds}},
+  \code{\link{splitControl}}, \code{\link{bootControl}}
 }
 \keyword{utilities}
 

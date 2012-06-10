@@ -3,7 +3,33 @@
 #         KU Leuven
 # ----------------------
 
-#' @S3method subset perry
+#' Subsetting resampling-based prediction error results
+#' 
+#' Extract subsets of resampling-based prediction error results.  
+#' 
+#' @method subset perry
+#' 
+#' @param x  an object inheriting from class \code{"perry"} or 
+#' \code{"perrySelect"} that contains prediction error results.
+#' @param subset  a character, integer or logical vector indicating the subset 
+#' of models for which to keep the prediction error results.
+#' @param select  a character, integer or logical vector indicating the columns 
+#' of prediction error results to be extracted.
+#' @param \dots  currently ignored.
+#' 
+#' @return An object similar to \code{x} containing just the selected results.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#' \code{\link{perryTuning}}, \code{\link{subset}}
+#' 
+## @example inst/doc/examples/example-subset.R
+#' 
+#' @keywords utilities
+#' 
+#' @export
+
 subset.perry <- function(x, select = NULL, ...) {
     if(is.null(select)) return(x)
     x$pe <- x$pe[select]
@@ -12,7 +38,11 @@ subset.perry <- function(x, select = NULL, ...) {
     x
 }
 
-#' @S3method subset perrySelect
+
+#' @rdname subset.perry
+#' @method subset perrySelect
+#' @export
+
 subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
     pe <- x$pe
     se <- x$se

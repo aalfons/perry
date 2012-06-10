@@ -79,7 +79,7 @@ cvFolds(20, K = 5, R = 10)
 }
 \seealso{
   \code{\link{perrySplits}}, \code{\link{foldControl}},
-  \code{\link{randomSplits}}
+  \code{\link{randomSplits}}, \code{\link{bootSamples}}
 }
 \keyword{utilities}
 
