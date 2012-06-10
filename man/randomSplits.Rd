@@ -1,7 +1,7 @@
 \name{randomSplits}
 \alias{print.randomSplits}
 \alias{randomSplits}
-\title{Random data splits for Monte Carlo cross-validation}
+\title{Random data splits}
 \usage{
   randomSplits(n, m, R = 1, grouping = NULL)
 }
@@ -46,9 +46,9 @@
 }
 \description{
   Split observations or groups of observations into
-  training and test data to be used for Monte Carlo
-  cross-validation (also known as random splitting or
-  random subsampling).
+  training and test data to be used for (repeated) random
+  splitting (also known as random subsampling or Monte
+  Carlo cross-validation).
 }
 \note{
   This is a simple wrapper function for

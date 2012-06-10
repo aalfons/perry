@@ -66,9 +66,9 @@ foldControl <- function(K = 5, R = 1,
 #' Control object for random data splits
 #' 
 #' Generate an object that controls how to split \eqn{n} observations or 
-#' groups of observations into training and test data to be used for Monte 
-#' Carlo cross-validation (also known as random splitting or random 
-#' subsampling).
+#' groups of observations into training and test data to be used for (repeated) 
+#' random splitting (also known as random subsampling or Monte Carlo 
+#' cross-validation).
 #' 
 #' @param m  an integer giving the number of observations or groups of 
 #' observations to be used as test data.
@@ -130,8 +130,9 @@ bootControl <- function(R = 1, type = c("0.632", "out-of-bag"),
 #' Data splits for resampling-based prediction error measures
 #' 
 #' Split observations or groups of observations into segments to be used 
-#' for (repeated) \eqn{K}-fold cross-validation, Monte Carlo cross-validation 
-#' (also known as random splitting or random subsampling), or the bootstrap.
+#' for (repeated) \eqn{K}-fold cross-validation, (repeated) random splitting 
+#' (also known as random subsampling or Monte Carlo cross-validation), or the 
+#' bootstrap.
 #' 
 #' @param n  an integer giving the number of observations to be split.
 #' @param control  a control object of class \code{"foldControl"} (as generated 
@@ -145,8 +146,7 @@ bootControl <- function(R = 1, type = c("0.632", "out-of-bag"),
 #' \code{\link{cvFolds}}).
 #' 
 #' For the \code{splitControl} method, an object of class \code{"randomSplits"} 
-#' giving random data splits for Monte Carlo cross-validation (see 
-#' \code{\link{randomSplits}}).
+#' giving random data splits (see \code{\link{randomSplits}}).
 #' 
 #' For the \code{bootControl} method, an object of class \code{"bootSamples"} 
 #' giving bootstrap samples (see \code{\link{bootSamples}}).
@@ -167,7 +167,7 @@ bootControl <- function(R = 1, type = c("0.632", "out-of-bag"),
 #' perrySplits(20, foldControl(K = 5))
 #' perrySplits(20, foldControl(K = 5, R = 10))
 #' 
-#' ## random data splits for Monte Carlo cross-validation
+#' ## random data splits
 #' perrySplits(20, splitControl(m = 5))
 #' perrySplits(20, splitControl(m = 5, R = 10))
 #' 
@@ -329,11 +329,11 @@ cvFolds <- function(n, K = 5, R = 1,
 }
 
 
-#' Random data splits for Monte Carlo cross-validation
+#' Random data splits
 #' 
 #' Split observations or groups of observations into training and test data to 
-#' be used for Monte Carlo cross-validation (also known as random splitting or 
-#' random subsampling).
+#' be used for (repeated) random splitting (also known as random subsampling or 
+#' Monte Carlo cross-validation).
 #' 
 #' @aliases print.randomSplits
 #' 

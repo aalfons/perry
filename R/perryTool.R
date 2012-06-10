@@ -59,7 +59,7 @@ perryTool.randomSplits <- function(call, data = NULL, x = NULL, y,
         cost = rmspe, splits, names = NULL, predictArgs = list(), 
         costArgs = list(), envir = parent.frame()) {
     # define an expression that obtains predictions for the test data in one 
-    # replication of Monte Carlo cross-validation
+    # replication of random splitting
     if(is.null(data)) {
         if(is.null(names)) names <- c("x", "y")
         cvExpr <- expression(
@@ -74,8 +74,7 @@ perryTool.randomSplits <- function(call, data = NULL, x = NULL, y,
         )
     }
     # define a function the evaluates the expression to obtain the prediction 
-    # and computes the prediction error for one replication of Monte Carlo 
-    # cross-validation
+    # and computes the prediction error for one replication of random splitting
     cvFun <- function(r, keepSE) {
         subset <- getIndices(splits, r)
         yHat <- eval(cvExpr)   # obtain predictions for test data
@@ -83,7 +82,7 @@ perryTool.randomSplits <- function(call, data = NULL, x = NULL, y,
         # compute cost function for predicted values
         pe <- computeCost(cost, y, yHat, args=costArgs, keepSE=keepSE)
     }
-    # perform Monte Carlo cross-validation
+    # perform (repeated) random splitting
     R <- splits$R
     if(R == 1) {
         pe <- cvFun(R, keepSE=TRUE)

@@ -12,7 +12,6 @@ subset.perry <- function(x, select = NULL, ...) {
     x
 }
 
-
 #' @S3method subset perrySelect
 subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
     pe <- x$pe
@@ -30,6 +29,7 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
             if(!is.null(reps)) x$reps <- reps[, select, drop=FALSE]
         }
     } else {
+        if(is.character(subset)) subset <- match(subset, pe$Fit)
         if(inherits(x, "perryTuning")) {
             # extract tuning parameters for the models to keep
             x$tuning <- x$tuning[subset, , drop=FALSE]
@@ -57,7 +57,7 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
         # find best model among the remaining ones
         if(is.null(x$selectBest)) x$selectBest <- "min"
         if(is.null(x$seFactor)) x$seFactor <- NA
-        if(ncol(pe) > 1) {
+        if(nrow(pe) > 0 && ncol(pe) > 1 && !all(is.na(fits))) {
             if(x$selectBest == "min") {
                 x$best <- sapply(pe[, -1, drop=FALSE], selectMin)
             } else {

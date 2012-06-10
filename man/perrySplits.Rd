@@ -21,8 +21,8 @@
   cross-validation (see \code{\link{cvFolds}}).
 
   For the \code{splitControl} method, an object of class
-  \code{"randomSplits"} giving random data splits for Monte
-  Carlo cross-validation (see \code{\link{randomSplits}}).
+  \code{"randomSplits"} giving random data splits (see
+  \code{\link{randomSplits}}).
 
   For the \code{bootControl} method, an object of class
   \code{"bootSamples"} giving bootstrap samples (see
@@ -31,9 +31,9 @@
 \description{
   Split observations or groups of observations into
   segments to be used for (repeated) \eqn{K}-fold
-  cross-validation, Monte Carlo cross-validation (also
-  known as random splitting or random subsampling), or the
-  bootstrap.
+  cross-validation, (repeated) random splitting (also known
+  as random subsampling or Monte Carlo cross-validation),
+  or the bootstrap.
 }
 \note{
   Users may prefer the wrapper functions
@@ -47,7 +47,7 @@ set.seed(1234)  # set seed for reproducibility
 perrySplits(20, foldControl(K = 5))
 perrySplits(20, foldControl(K = 5, R = 10))
 
-## random data splits for Monte Carlo cross-validation
+## random data splits
 perrySplits(20, splitControl(m = 5))
 perrySplits(20, splitControl(m = 5, R = 10))
 

@@ -6,8 +6,8 @@
 #' Summarize prediction error results
 #' 
 #' Produce a summary of results from (repeated) \eqn{K}-fold cross-validation, 
-#' Monte Carlo cross-validation(also known as random splitting or random 
-#' subsampling), or the bootstrap.  
+#' (repeated) random splitting (also known as random subsampling or Monte Carlo 
+#' cross-validation), or the bootstrap.  
 #' 
 #' @method summary perry
 #' 

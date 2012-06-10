@@ -130,7 +130,7 @@ getPrefix.cvFolds <- function(x) {
     } else prefix <- sprintf("%d-fold CV", x$K)
 }
 
-getPrefix.randomSplits <- function(x) "Monte Carlo CV"
+getPrefix.randomSplits <- function(x) "Random splitting"
 
 getPrefix.bootSamples <- function(x) {
     if(x$type == "out-of-bag") {

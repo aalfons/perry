@@ -33,8 +33,9 @@
 \description{
   Generate an object that controls how to split \eqn{n}
   observations or groups of observations into training and
-  test data to be used for Monte Carlo cross-validation
-  (also known as random splitting or random subsampling).
+  test data to be used for (repeated) random splitting
+  (also known as random subsampling or Monte Carlo
+  cross-validation).
 }
 \examples{
 set.seed(1234)  # set seed for reproducibility

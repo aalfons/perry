@@ -26,9 +26,9 @@
 }
 \description{
   Produce a summary of results from (repeated) \eqn{K}-fold
-  cross-validation, Monte Carlo cross-validation(also known
-  as random splitting or random subsampling), or the
-  bootstrap.
+  cross-validation, (repeated) random splitting (also known
+  as random subsampling or Monte Carlo cross-validation),
+  or the bootstrap.
 }
 \author{
   Andreas Alfons
