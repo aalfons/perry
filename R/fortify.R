@@ -34,7 +34,8 @@
 #' faceting formula for the plots).
 #' @returnItem Fit  a vector or factor containing the identifiers of the models.
 #' @returnItem Name  a factor containing the names of the predictor error 
-#' results.
+#' results (not returned in case of only one column of prediction error results 
+#' with the default name).
 #' @returnItem PE  the estimated prediction errors.
 #' @returnItem Lower  the lower end points of the error bars (only returned if 
 #' \code{reps} is \code{FALSE}).

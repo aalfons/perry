@@ -55,7 +55,9 @@ plotting}
   of the models.}
 
   \item{Name}{a factor containing the names of the
-  predictor error results.}
+  predictor error results (not returned in case of only one
+  column of prediction error results with the default
+  name).}
 
   \item{PE}{the estimated prediction errors.}
 
