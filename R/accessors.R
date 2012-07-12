@@ -128,3 +128,17 @@ nfits <- function(x) UseMethod("nfits")
 #' @S3method nfits perry
 #' @S3method nfits perrySelect
 nfits.perry <- nfits.perrySelect <- function(x) nrow(x$pe)
+
+
+## @rdname accessors
+## @export
+#getR <- function(x) UseMethod("getR")
+#
+## @S3method getR cvFolds
+## @S3method getR randomSplits
+## @S3method getR bootSamples
+#getR.cvFolds <- getR.randomSplits <- getR.bootSamples <- function(x) x$R
+#
+## @S3method getR perry
+## @S3method getR perrySelect
+#getR.perry <- getR.perrySelect <- function(x) getR(x$splits)

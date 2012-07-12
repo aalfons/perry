@@ -7,6 +7,7 @@ Author: Andreas Alfons
 Maintainer: Andreas Alfons <andreas.alfons@kuleuven.be>
 Depends:
     R (>= 2.11.0),
+    ggplot2,
     lattice,
     robustbase
 Imports:
@@ -23,6 +24,7 @@ Collate:
     'cost.R'
     'densityplot.R'
     'dotplot.R'
+    'fortify.R'
     'perryFit.R'
     'perry.R'
     'perryReshape.R'
