@@ -8,7 +8,6 @@ Maintainer: Andreas Alfons <andreas.alfons@kuleuven.be>
 Depends:
     R (>= 2.11.0),
     ggplot2,
-    lattice,
     robustbase
 Imports:
     stats
@@ -20,10 +19,7 @@ LazyLoad: yes
 Collate:
     'accessors.R'
     'aggregate.R'
-    'bwplot.R'
     'cost.R'
-    'densityplot.R'
-    'dotplot.R'
     'fortify.R'
     'perryFit.R'
     'perry.R'
@@ -39,4 +35,3 @@ Collate:
     'subset.R'
     'summary.R'
     'utils.R'
-    'xyplot.R'
