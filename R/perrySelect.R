@@ -89,8 +89,8 @@
 #' @export
 
 perrySelect <- function(..., .reshape = FALSE, 
-    .selectBest = c("min", "hastie"), 
-    .seFactor = 1) {
+        .selectBest = c("min", "hastie"), 
+        .seFactor = 1) {
     ## initializations
     objects <- list(...)
     m <- length(objects)
@@ -135,7 +135,7 @@ perrySelect <- function(..., .reshape = FALSE,
         fits <- as.list(fits)
         fits[isPerrySelect] <- mapply(function(f, x) paste(f, x$pe$Fit, sep="."), 
             fits[isPerrySelect], objects[isPerrySelect], SIMPLIFY=FALSE)
-        fits <- unlist(fits)
+        fits <- unlist(fits, use.names=FALSE)
         # prepare basic information
         objects[isPerrySelect] <- lapply(objects[isPerrySelect], 
             function(x) {

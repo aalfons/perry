@@ -239,7 +239,7 @@ perrySplits.foldControl <- function(n, control) {
         R <- 1
         subsets <- as.matrix(seq_len(n))
     }
-    which <- rep(seq_len(K), length.out=n)
+    which <- as.factor(rep(seq_len(K), length.out=n))
     if(type == "consecutive") which <- rep.int(seq_len(K), tabulate(which))
     # construct and return object
     folds <- list(n=n, K=K, R=R, subsets=subsets, which=which)

@@ -32,27 +32,6 @@ combineData <- function(x, drop = TRUE) {
     } else do.call("rbind", x)
 }
 
-# compute cost function for predicted values
-computeCost <- function(fun, y, yHat, args = list(), keepSE = TRUE) {
-    # if the response is a vector and the predicted values are a matrix, 
-    # compute the cost for each column of the matrix of predictions
-    if(is.null(dim(y)) && !is.null(dim(yHat))) {
-        pe <- apply(yHat, 2, function(x) doCall(fun, y, x, args=args))
-        if(is.list(pe)) {
-            # cost function returns list of prediction error and standard error
-            if(keepSE) {
-                peNames <- names(pe[[1]])
-                pe <- list(sapply(pe, "[[", 1), sapply(pe, "[[", 2))
-                names(pe) <- peNames
-            } else pe <- sapply(pe, "[[", 1)
-        }
-    } else {
-        pe <- doCall(fun, y, yHat, args=args)
-        if(is.list(pe) && !keepSE) pe <- pe[[1]]
-    }
-    pe
-}
-
 # retrieve data subsets
 dataSubset <- function(x, i, drop = FALSE) {
     if(is.null(dim(x))) {
