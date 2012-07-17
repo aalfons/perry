@@ -29,7 +29,7 @@ addNames.default <- function(x) {
 combineData <- function(x, drop = TRUE) {
     if(drop && is.null(dim(x[[1]]))) {
         unlist(x)
-    } else do.call("rbind", x)
+    } else do.call(rbind, x)
 }
 
 # retrieve data subsets

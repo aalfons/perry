@@ -174,7 +174,7 @@ perrySelect <- function(..., .reshape = FALSE,
     haveReps <- R > 1
     if(haveReps) {
         reps <- lapply(objects, function(x) as.matrix(x$reps))
-        reps <- do.call("rbind", reps)
+        reps <- do.call(rbind, reps)
         if(m > 1 && adjustNames) colnames(reps) <- peNames
         reps <- data.frame(Fit=factor(rep(fits, each=R), levels=fits), 
             reps, row.names=NULL)

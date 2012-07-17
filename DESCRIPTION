@@ -26,7 +26,6 @@ Collate:
     'perryReshape.R'
     'perrySelect.R'
     'perrySplits.R'
-    'perryTool.R'
     'perryTuning.R'
     'plot.R'
     'predict.R'

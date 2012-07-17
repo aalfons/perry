@@ -239,7 +239,7 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y,
     if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
     selectBest <- match.arg(selectBest)
     # create all combinations of tuning parameters
-    tuning <- do.call("expand.grid", tuning)
+    tuning <- do.call(expand.grid, tuning)
     nTuning <- nrow(tuning)
     pTuning <- ncol(tuning)
     if(nTuning == 0 || pTuning == 0) {

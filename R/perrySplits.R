@@ -243,9 +243,8 @@ perrySplits.foldControl <- function(n, control) {
     if(type == "consecutive") which <- rep.int(seq_len(K), tabulate(which))
     # construct and return object
     folds <- list(n=n, K=K, R=R, subsets=subsets, which=which)
-    if(!is.null(grouping)) {
+    if(!is.null(grouping)) 
         folds$grouping <- split(seq_along(grouping), grouping)
-    }
     class(folds) <- "cvFolds"
     folds
 }
@@ -264,9 +263,8 @@ perrySplits.splitControl <- function(n, control) {
     subsets <- replicate(R, sample.int(n, m))
     # construct and return object
     splits <- list(n=n, m=m, R=R, subsets=subsets)
-    if(!is.null(grouping)) {
+    if(!is.null(grouping)) 
         splits$grouping <- split(seq_along(grouping), grouping)
-    }
     class(splits) <- "randomSplits"
     splits
 }
@@ -294,9 +292,9 @@ perrySplits.bootControl <- function(n, control) {
     }
     # construct and return object
     splits <- list(n=n, R=R, type=type, samples=samples)
-    if(!is.null(grouping)) {
+    if(!is.null(grouping)) 
         splits$grouping <- split(seq_along(grouping), grouping)
-    }
+    splits$yHat <- control$yHat  # passed internally for 0.632 estimator
     class(splits) <- "bootSamples"
     splits
 }
@@ -484,11 +482,10 @@ getIndices.cvFolds <- function(x, r = 1, ...) {
     subsets <- split(x$subsets[, r], x$which)
     # in case of grouped data, the list contains the group indices in each CV 
     # fold, so the indices of the respective observations need to be extracted
-    if(!is.null(grouping <- x$grouping)) {
-        subsets <- lapply(subsets, 
-            function(s) unlist(grouping[s], use.names=FALSE))
-    }
+    if(!is.null(grouping <- x$grouping)) 
+        subsets <- lapply(subsets, function(s) unlist(grouping[s], use.names=FALSE))
     # return list of indices for CV folds
+    names(subsets) <- NULL
     subsets
 }
 
@@ -497,9 +494,8 @@ getIndices.randomSplits <- function(x, r = 1, ...) {
     # in case of grouped data, the matrix contains the indices of the groups in 
     # the test data, so the indices of the respective observations need to be 
     # extracted
-    if(!is.null(grouping <- x$grouping)) {
+    if(!is.null(grouping <- x$grouping)) 
         subsets <- unlist(grouping[subsets], use.names=FALSE)
-    }
     # return matrix of indices for test data
     subsets
 }
@@ -509,9 +505,8 @@ getIndices.bootSamples <- function(x, r = 1, ...) {
     # in case of grouped data, the matrix contains the indices of the groups in 
     # the bootstrap samples, so the indices of the respective observations need 
     # to be extracted
-    if(!is.null(grouping <- x$grouping)) {
+    if(!is.null(grouping <- x$grouping)) 
         samples <- unlist(grouping[samples], use.names=FALSE)
-    }
     # return matrix of indices for bootstrap samples
     samples
 }

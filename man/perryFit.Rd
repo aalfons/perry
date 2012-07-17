@@ -3,26 +3,31 @@
 \alias{perryFit.call}
 \alias{perryFit.default}
 \alias{perryFit.function}
+\alias{perryFit.perry}
 \alias{print.perry}
 \title{Resampling-based prediction error for model evaluation}
 \usage{
   perryFit(object, ...)
 
   \method{perryFit}{default} (object, data = NULL,
-    x = NULL, y, cost = rmspe, splits = foldControl(),
-    names = NULL, predictArgs = list(), costArgs = list(),
+    x = NULL, y, splits = foldControl(),
+    predictFun = predict, predictArgs = list(),
+    cost = rmspe, costArgs = list(), names = NULL,
     envir = parent.frame(), seed = NULL, ...)
 
   \method{perryFit}{function} (object, formula,
-    data = NULL, x = NULL, y, args = list(), cost = rmspe,
-    splits = foldControl(), names = NULL,
-    predictArgs = list(), costArgs = list(),
-    envir = parent.frame(), seed = NULL, ...)
+    data = NULL, x = NULL, y, args = list(),
+    splits = foldControl(), predictFun = predict,
+    predictArgs = list(), cost = rmspe, costArgs = list(),
+    names = NULL, envir = parent.frame(), seed = NULL, ...)
 
   \method{perryFit}{call} (object, data = NULL, x = NULL,
-    y, cost = rmspe, splits = foldControl(), names = NULL,
-    predictArgs = list(), costArgs = list(),
-    envir = parent.frame(), seed = NULL, ...)
+    y, splits = foldControl(), predictFun = predict,
+    predictArgs = list(), cost = rmspe, costArgs = list(),
+    names = NULL, envir = parent.frame(), seed = NULL, ...)
+
+  \method{perryFit}{perry} (object, cost = rmspe,
+    costArgs = list(), ...)
 }
 \arguments{
   \item{object}{the fitted model for which to estimate the

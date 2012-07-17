@@ -149,9 +149,10 @@ perryFit <- function(object, ...) UseMethod("perryFit")
 #' @method perryFit default
 #' @export
 
-perryFit.default <- function(object, data = NULL, x = NULL, y, cost = rmspe, 
-        splits = foldControl(), names = NULL, predictArgs = list(), 
-        costArgs = list(), envir = parent.frame(), seed = NULL, ...) {
+perryFit.default <- function(object, data = NULL, x = NULL, y, 
+        splits = foldControl(), predictFun = predict, predictArgs = list(), 
+        cost = rmspe, costArgs = list(), names = NULL, envir = parent.frame(), 
+        seed = NULL, ...) {
     ## extract function call for model fit
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryFit")
@@ -159,43 +160,15 @@ perryFit.default <- function(object, data = NULL, x = NULL, y, cost = rmspe,
     if(is.null(call)) stop("function call for model fitting not available")
     ## for the 0.632 bootstrap estimator, compute the apparent error
     if(inherits(splits, c("bootControl", "bootSamples")) && splits$type == "0.632") {
-        n <- nobs(y)
-        if(is.null(data)) {
-            sx <- "x"
-            nx <- nobs(x)
-            if(is.null(names)) names <- c("x", "y")
-        } else {
-            sx <- "data"
-            nx <- nobs(data)
-            if(is.null(names)) names <- c("data")
-        }
-        if(!isTRUE(n == nx)) {
-            stop(sprintf("'%s' must have %d observations", sx, nx))
-        }
-        # make sure that .Random.seed exists if no seed is supplied
-        if(is.null(seed)) {
-            if(!exists(".Random.seed", envir=.GlobalEnv, inherits=FALSE)) {
-                runif(1)
-            }
-            seed <- get(".Random.seed", envir=.GlobalEnv, inherits=FALSE)
-        } else set.seed(seed)
-        # compute data splits
-        if(is.null(getS3method("perryTool", class(splits), optional=TRUE))) {
-            splits <- perrySplits(n, control=splits)
-        }
         # predict the response for all observations
-        if(is.null(data)) {
-            yHat <- doCall(predict, object, x, args=predictArgs)
-        } else {
-            yHat <- doCall(predict, object, data, args=predictArgs)
-        }
-        # compute the apparent error with the supplied cost function
-        splits$ae <- computeCost(cost, y, yHat, args=costArgs, keepSE=FALSE)
+        if(is.null(data)) 
+            splits$yHat <- doCall(predictFun, object, x, args=predictArgs)
+        else splits$yHat <- doCall(predictFun, object, data, args=predictArgs)
     }
     ## call method for unevaluated function calls
-    out <- perryFit(call, data=data, x=x, y=y, cost=cost, splits=splits, 
-        names=names, predictArgs=predictArgs, costArgs=costArgs, envir=envir, 
-        seed=seed, ...)
+    out <- perryFit(call, data=data, x=x, y=y, splits=splits, 
+        predictFun=predictFun, predictArgs=predictArgs, cost=cost, 
+        costArgs=costArgs, names=names, envir=envir, seed=seed, ...)
     out$call <- matchedCall
     out
 }
@@ -206,9 +179,9 @@ perryFit.default <- function(object, data = NULL, x = NULL, y, cost = rmspe,
 #' @export
 
 perryFit.function <- function(object, formula, data = NULL, x = NULL, y, 
-        args = list(), cost = rmspe, splits = foldControl(), names = NULL, 
-        predictArgs = list(), costArgs = list(), envir = parent.frame(), 
-        seed = NULL, ...) {
+        args = list(), splits = foldControl(), predictFun = predict, 
+        predictArgs = list(), cost = rmspe, costArgs = list(), names = NULL, 
+        envir = parent.frame(), seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryFit")
@@ -228,9 +201,9 @@ perryFit.function <- function(object, formula, data = NULL, x = NULL, y,
         y <- model.response(data)  # extract response from model frame
     }
     ## call method for unevaluated function calls
-    out <- perryFit(call, data=data, x=x, y=y, cost=cost, splits=splits, 
-        names=names, predictArgs=predictArgs, costArgs=costArgs, 
-        envir=envir, seed=seed)
+    out <- perryFit(call, data=data, x=x, y=y, splits=splits, 
+        predictFun=predictFun, predictArgs=predictArgs, cost=cost, 
+        costArgs=costArgs, names=names, envir=envir, seed=seed, ...)
     out$call <- matchedCall
     out
 }
@@ -240,9 +213,10 @@ perryFit.function <- function(object, formula, data = NULL, x = NULL, y,
 #' @method perryFit call
 #' @export
 
-perryFit.call <- function(object, data = NULL, x = NULL, y, cost = rmspe, 
-        splits = foldControl(), names = NULL, predictArgs = list(), 
-        costArgs = list(), envir = parent.frame(), seed = NULL, ...) {
+perryFit.call <- function(object, data = NULL, x = NULL, y, 
+        splits = foldControl(), predictFun = predict, predictArgs = list(), 
+        cost = rmspe, costArgs = list(), names = NULL, envir = parent.frame(), 
+        seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryFit")
@@ -261,35 +235,236 @@ perryFit.call <- function(object, data = NULL, x = NULL, y, cost = rmspe,
         seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
     } else set.seed(seed)
     ## compute data splits
-    if(is.null(getS3method("perryTool", class(splits), optional=TRUE))) {
+    if(!is.null(getS3method("perrySplits", class(splits), optional=TRUE))) 
         splits <- perrySplits(n, control=splits)
-    }
-    ## call workhorse function to estimate the prediction error
-    pe <- perryTool(object, data, x, y, cost=cost, splits=splits, names=names, 
-        predictArgs=predictArgs, costArgs=costArgs, envir=envir)
-    ## compute average results in case of more than one replication and 
-    ## prepare standard errors
-    if(is.list(pe)) {
-        R <- 1  # only one replication
-        se <- pe[[2]]
-        pe <- pe[[1]]
+    ## call workhorse function to compute the predictions
+    yHat <- perryPredictions(object, data, x, y, splits=splits, 
+        predictFun=predictFun, predictArgs=predictArgs, envir=envir)
+    ## call workhorse function to compute the prediction loss
+    pe <- perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
+    ## construct return object
+    pe <- c(pe, list(splits=splits, y=y, yHat=yHat, 
+            seed=seed, call=matchedCall))
+    class(pe) <- "perry"
+    pe
+}
+
+
+#' @rdname perryFit
+#' @method perryFit perry
+#' @export
+
+perryFit.perry <- function(object, cost = rmspe, costArgs = list(), ...) {
+    ## initializations
+    matchedCall <- match.call()
+    matchedCall[[1]] <- as.name("perryFit")
+    ## call workhorse function to compute the prediction loss
+    pe <- perryCost(object$splits, object$y, object$yHat, 
+        cost=cost, costArgs=costArgs)
+    ## construct return object
+    object[names(pe)] <- pe
+    object$call <- matchedCall
+    object
+}
+
+
+## compute predictions
+
+# generic function to be extensible
+perryPredictions <- function(call, data = NULL, x = NULL, y, splits, 
+    predictFun = predict, predictArgs = list(), names = NULL, 
+    envir = parent.frame()) {
+    UseMethod("perryPredictions", splits)
+}
+
+# default method for built-in procedures
+perryPredictions.default <- function(call, data = NULL, x = NULL, y, 
+    splits, predictFun = predict, predictArgs = list(), names = NULL, 
+    envir = parent.frame()) {
+    # define an expression that obtains predictions in one replication
+    if(is.null(data)) {
+        if(is.null(names)) names <- c("x", "y")
+        if(inherits(splits, "cvFolds")) fun <- cvXY
+        else if (inherits(splits, "randomSplits")) fun <- rsXY
+        else if(inherits(splits, "bootSamples")) fun <- bootXY
+        else stop("invalid data splits")
     } else {
-        R <- nrow(pe)
-        if(R > 1) {
-            reps <- pe
-            pe <- apply(reps, 2, mean)
-            se <- apply(reps, 2, sd)
-        } else {
-            pe <- addNames(drop(pe))  # drop() removes column name of 1x1 matrix
-            se <- rep.int(NA, length(pe))
-            names(se) <- names(pe)
+        if(is.null(names)) names <- "data"
+        if(inherits(splits, "cvFolds")) fun <- cvData
+        else if (inherits(splits, "randomSplits")) fun <- rsData
+        else if(inherits(splits, "bootSamples")) fun <- bootData
+        else stop("invalid data splits")
+    }
+    # obtain list of predictions for all replications
+    lapply(seq_len(splits$R), function(r) {
+            s <- getIndices(splits, r)
+            fun(s, call=call, data=data, x=x, y=y, predictFun=predictFun, 
+                predictArgs=predictArgs, names=names, envir=envir)
+        })
+}
+
+# one replication of cross validation for functions that take the predictors 
+# and the response as separate arguments
+cvXY <- function(folds, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # fit the model leaving each block out and obtain predictions for the 
+    # left-out block
+    tmp <- lapply(folds, rsXY, call=call, x=x, y=y, predictFun=predictFun, 
+        predictArgs=predictArgs, names=names, envir=envir)
+    # instead of collecting the results from the folds in the original order 
+    # of the observations, they are simply stacked on top of each other
+    combineData(tmp)
+}
+
+# one replication of cross validation for functions that that have one argument 
+# for all the data
+cvData <- function(folds, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # fit the model leaving each block out and obtain predictions for the 
+    # left-out block
+    tmp <- lapply(folds, rsData, call=call, data=data, predictFun=predictFun, 
+        predictArgs=predictArgs, names=names, envir=envir)
+    # instead of collecting the results from the folds in the original order 
+    # of the observations, they are simply stacked on top of each other
+    combineData(tmp)
+}
+
+# fit the model for the training data and obtain predictions of the test data
+# for functions that take the predictors and the response as separate arguments
+rsXY <- function(i, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # plug training data into function call
+    call[[names[1]]] <- dataSubset(x, -i)
+    call[[names[2]]] <- dataSubset(y, -i)
+    # evaluate function call in supplied environment to make sure 
+    # that other arguments are evaluated correctly
+    fit <- eval(call, envir)
+    # predict response for test data
+    doCall(predictFun, fit, dataSubset(x, i), args=predictArgs)
+}
+
+# fit the model for the training data and obtain predictions of the test data
+# for functions that have one argument for all the data
+rsData <- function(i, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # plug training data into function call
+    call[[names]] <- dataSubset(data, -i)
+    # evaluate function call in supplied environment to make sure 
+    # that other arguments are evaluated correctly
+    fit <- eval(call, envir)
+    # predict response for test data
+    doCall(predictFun, fit, dataSubset(data, i), args=predictArgs)
+}
+
+# fit the model for the bootstrap sample and obtain predictions for the 
+# out-of-bag observations for functions that take the predictors and the 
+# response as separate arguments
+bootXY <- function(i, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # plug training data into function call
+    call[[names[1]]] <- dataSubset(x, i)
+    call[[names[2]]] <- dataSubset(y, i)
+    # evaluate function call in supplied environment to make sure 
+    # that other arguments are evaluated correctly
+    fit <- eval(call, envir)
+    # predict response for test data
+    doCall(predictFun, fit, dataSubset(x, -i), args=predictArgs)
+}
+
+# fit the model for the bootstrap sample and obtain predictions for the 
+# out-of-bag observations for functions that have one argument for all the data
+bootData <- function(i, call, data, x, y, predictFun, predictArgs, names, envir) {
+    # plug training data into function call
+    call[[names]] <- dataSubset(data, i)
+    # evaluate function call in supplied environment to make sure 
+    # that other arguments are evaluated correctly
+    fit <- eval(call, envir)
+    # predict response for test data
+    doCall(predictFun, fit, dataSubset(data, -i), args=predictArgs)
+}
+
+
+## compute prediction loss
+
+# generic function to be extensible
+perryCost <- function(splits, y, yHat, cost, costArgs = list()) {
+    UseMethod("perryCost")
+}
+
+# default method for built-in procedures
+perryCost.default <- function(splits, y, yHat, cost, costArgs = list()) {
+    # initializations
+    if(inherits(splits, "cvFolds")) {
+        # function to compute prediction loss for all observations
+        # response needs to be re-oredered according to cross-validation folds
+        fun <- function(r, keepSE) {
+            s <- unlist(getIndices(splits, r), use.names=FALSE)
+            computeCost(cost, dataSubset(y, s), yHat[[r]], 
+                args=costArgs, keepSE=keepSE)
+        }
+    } else if(inherits(splits, "randomSplits")) { 
+        # function to compute prediction loss for test data
+        fun <- function(r, keepSE) {
+            s <- getIndices(splits, r)
+            computeCost(cost, dataSubset(y, s), yHat[[r]], 
+                args=costArgs, keepSE=keepSE)
+        }
+    } else if(inherits(splits, "bootSamples")) {
+        # function to compute prediction loss for out-of-bag observations
+        fun <- function(r, keepSE) {
+            s <- getIndices(splits, r)
+            computeCost(cost, dataSubset(y, -s), yHat[[r]], 
+                args=costArgs, keepSE=keepSE)
+        }
+    } else stop("invalid data splits")
+    # compute prediction loss
+    R <- splits$R
+    boot0.632 <- inherits(splits, "bootSamples") && splits$type == "0.632"
+    if(R == 1) {
+        # keep standard error if returned by prediction loss function, 
+        # otherwise set it to NA
+        pe <- fun(r=1, keepSE=!boot0.632)
+        if(!is.list(pe)) pe <- list(pe=pe, se=rep.int(NA, length(pe)))
+        pe <- addNames(pe)
+    } else {
+        # discard standard error if returned by prediction loss function and 
+        # recompute it from replications
+        pe <- lapply(seq_len(R), fun, keepSE=FALSE)  # for each replication
+        pe <- addNames(combineData(pe, drop=FALSE))  # combine results
+    }
+    # if requested, compute the 0.632 bootstrap estimator
+    if(boot0.632) {
+        # check if the fitted values from the model using all observations 
+        # are available
+        if(is.null(yHat <- splits$yHat)) 
+            stop("fitted values to compute the apparent error are not available")
+        else ae <- computeCost(cost, y, yHat, args=costArgs, keepSE=FALSE)
+        # compute 0.632 estimator as combination of apparent error and 
+        # out-of-bag prediction error
+        if(R == 1) pe <- 0.632 * pe + 0.368 * ae
+        else pe <- sweep(0.632 * pe, 2, 0.368 * ae, "+", check.margin=FALSE)
+    }
+    # aggregate results for more than one replication
+    if(R > 1) {
+        reps <- pe
+        pe <- list(pe=apply(reps, 2, mean), se=apply(reps, 2, sd), reps=reps)
+    }
+    # return list
+    pe
+}
+
+# compute cost function for predicted values from one replication
+computeCost <- function(fun, y, yHat, args = list(), keepSE = TRUE) {
+    # if the response is a vector and the predicted values are a matrix, 
+    # compute the cost for each column of the matrix of predictions
+    if(is.null(dim(y)) && !is.null(dim(yHat))) {
+        pe <- apply(yHat, 2, function(x) doCall(fun, y, x, args=args))
+        if(is.list(pe)) {
+            # cost function returns list of prediction error and standard error
+            if(keepSE) 
+                pe <- list(pe=sapply(pe, "[[", 1), se=sapply(pe, "[[", 2))
+            else pe <- sapply(pe, "[[", 1)
+        }
+    } else {
+        pe <- doCall(fun, y, yHat, args=args)
+        if(is.list(pe)) {
+            pe <- if(keepSE) list(pe=pe[[1]], se=pe[[2]]) else pe[[1]]
         }
     }
-    ## construct return object
-    out <- list(splits=splits, pe=pe, se=se)
-    if(R > 1) out$reps <- reps
-    out$seed <- seed
-    out$call <- matchedCall
-    class(out) <- "perry"
-    out
+    pe
 }
