@@ -2,6 +2,7 @@
 \alias{perryTuning}
 \alias{perryTuning.call}
 \alias{perryTuning.function}
+\alias{perryTuning.perryTuning}
 \alias{print.perryTuning}
 \title{Resampling-based prediction error for tuning parameter selection}
 \usage{
@@ -9,17 +10,21 @@
 
   \method{perryTuning}{function} (object, formula,
     data = NULL, x = NULL, y, tuning = list(),
-    args = list(), cost = rmspe, splits = foldControl(),
-    names = NULL, predictArgs = list(), costArgs = list(),
+    args = list(), splits = foldControl(),
+    predictFun = predict, predictArgs = list(),
+    cost = rmspe, costArgs = list(),
     selectBest = c("min", "hastie"), seFactor = 1,
-    envir = parent.frame(), seed = NULL, ...)
+    names = NULL, envir = parent.frame(), seed = NULL, ...)
 
   \method{perryTuning}{call} (object, data = NULL,
-    x = NULL, y, tuning = list(), cost = rmspe,
-    splits = foldControl(), names = NULL,
-    predictArgs = list(), costArgs = list(),
+    x = NULL, y, tuning = list(), splits = foldControl(),
+    predictFun = predict, predictArgs = list(),
+    cost = rmspe, costArgs = list(),
     selectBest = c("min", "hastie"), seFactor = 1,
-    envir = parent.frame(), seed = NULL, ...)
+    names = NULL, envir = parent.frame(), seed = NULL, ...)
+
+  \method{perryTuning}{perryTuning} (object, cost = rmspe,
+    costArgs = list(), ...)
 }
 \arguments{
   \item{object}{a function or an unevaluated function call

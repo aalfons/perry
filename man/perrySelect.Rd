@@ -3,7 +3,7 @@
 \alias{print.perrySelect}
 \title{Model selection via resampling-based prediction error measures}
 \usage{
-  perrySelect(..., .reshape = FALSE,
+  perrySelect(..., .list = list(...), .reshape = FALSE,
     .selectBest = c("min", "hastie"), .seFactor = 1)
 }
 \arguments{

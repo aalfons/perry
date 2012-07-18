@@ -185,10 +185,10 @@ perryTuning <- function(object, ...) UseMethod("perryTuning")
 #' @export
 
 perryTuning.function <- function(object, formula, data = NULL, x = NULL, y, 
-        tuning = list(), args = list(), cost = rmspe, splits = foldControl(), 
-        names = NULL, predictArgs = list(), costArgs = list(), 
-        selectBest = c("min", "hastie"), seFactor = 1, 
-        envir = parent.frame(), seed = NULL, ...) {
+        tuning = list(), args = list(), splits = foldControl(), 
+        predictFun = predict, predictArgs = list(), cost = rmspe, 
+        costArgs = list(), selectBest = c("min", "hastie"), seFactor = 1, 
+        names = NULL, envir = parent.frame(), seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryTuning")
@@ -208,9 +208,10 @@ perryTuning.function <- function(object, formula, data = NULL, x = NULL, y,
         y <- model.response(data)  # extract response from model frame
     }
     ## call method for unevaluated function calls
-    out <- perryTuning(call, data=data, x=x, y=y, tuning=tuning, cost=cost, 
-        splits=splits, names=names, predictArgs=predictArgs, costArgs=costArgs, 
-        selectBest=selectBest, seFactor=seFactor, envir=envir, seed=seed)
+    out <- perryTuning(call, data=data, x=x, y=y, tuning=tuning, 
+        splits=splits, predictFun=predictFun, predictArgs=predictArgs, 
+        cost=cost, costArgs=costArgs, selectBest=selectBest, 
+        seFactor=seFactor, names=names, envir=envir, seed=seed, ...)
     out$call <- matchedCall
     out
 }
@@ -220,11 +221,10 @@ perryTuning.function <- function(object, formula, data = NULL, x = NULL, y,
 #' @method perryTuning call
 #' @export
 
-perryTuning.call <- function(object, data = NULL, x = NULL, y, 
-        tuning = list(), cost = rmspe, splits = foldControl(), 
-        names = NULL, predictArgs = list(), costArgs = list(), 
-        selectBest = c("min", "hastie"), seFactor = 1, 
-        envir = parent.frame(), seed = NULL, ...) {
+perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(), 
+        splits = foldControl(), predictFun = predict, predictArgs = list(), 
+        cost = rmspe, costArgs = list(), selectBest = c("min", "hastie"), 
+        seFactor = 1, names = NULL, envir = parent.frame(), seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryTuning")
@@ -237,16 +237,15 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y,
         nx <- nobs(data)
     }
     if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
-    selectBest <- match.arg(selectBest)
     # create all combinations of tuning parameters
     tuning <- do.call(expand.grid, tuning)
     nTuning <- nrow(tuning)
     pTuning <- ncol(tuning)
     if(nTuning == 0 || pTuning == 0) {
         # use function perryFit() if no tuning parameters are supplied
-        out <- perryFit(object, data, x, y, cost=cost, splits=splits, 
-            names=names, predictArgs=predictArgs, costArgs=costArgs, 
-            envir=envir, seed=seed)
+        out <- perryFit(object, data, x, y, splits=splits, 
+            predictFun=predictFun, predictArgs=predictArgs, cost=cost, 
+            costArgs=costArgs, names=names, envir=envir, seed=seed)
         return(out)
     }
     # make sure that .Random.seed exists if no seed is supplied
@@ -255,41 +254,91 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y,
         seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
     } else set.seed(seed)
     ## compute data splits
-    if(is.null(getS3method("perryTool", class(splits), optional=TRUE))) {
-        splits <- perrySplits(n, control=splits)
-    }
-    ## estimate the prediction error for each combination of tuning parameters
+    if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
+    ## compute the predictions for each combination of tuning parameters
     tuningNames <- names(tuning)
-    pe <- lapply(seq_len(nTuning), 
+    yHat <- lapply(seq_len(nTuning), 
         function(i) {
             # add tuning parameters to function call
             for(j in seq_len(pTuning)) {
                 object[[tuningNames[j]]] <- tuning[i, j]
             }
-            # estimate the prediction error
-            perryTool(object, data, x, y, cost=cost, splits=splits, 
-                names=names, predictArgs=predictArgs, costArgs=costArgs, 
-                envir=envir)
+            # compute the predictions
+            perryPredictions(object, data, x, y, splits=splits, 
+                predictFun=predictFun, predictArgs=predictArgs, 
+                names=names, envir=envir)
         })
-    ## prepare the prediction errors and standard errors
-    if(is.list(pe[[1]])) {
-        R <- 1  # only one replication
-        se <- combineData(lapply(pe, "[[", 2), drop=FALSE)
-        pe <- combineData(lapply(pe, "[[", 1), drop=FALSE)
-    } else {
-        R <- nrow(pe[[1]])
-        pe <- combineData(pe, drop=FALSE)
-        if(R <= 1) se <- matrix(NA, nrow(pe), ncol(pe), dimnames=dimnames(pe))
+    ## estimate the prediction loss for each combination of tuning parameters
+    pe <- lapply(yHat, 
+        function(yHat) perryCost(splits, y, yHat, cost=cost, costArgs=costArgs))
+    pe <- combineResults(pe, fits=seq_len(nTuning))
+    ## select optimal tuning parameters
+    best <- selectBest(pe$pe, pe$se, method=selectBest, seFactor=seFactor)
+    ## construct return object
+    pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best, 
+        list(tuning=tuning, seed=seed, call=matchedCall))
+    class(pe) <- c("perryTuning", "perrySelect")
+    pe
+}
+
+
+#' @rdname perryTuning
+#' @method perryTuning perryTuning
+#' @export
+
+perryTuning.perryTuning <- function(object, cost = rmspe, 
+        costArgs = list(), ...) {
+    ## initializations
+    matchedCall <- match.call()
+    matchedCall[[1]] <- as.name("perryTuning")
+    peNames <- peNames(object)  # names before re-estimating the prediction loss
+    ## re-estimate the prediction loss for each combination of tuning parameters
+    pe <- lapply(object$yHat, 
+        function(yHat, splits, y) {
+            perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
+        }, splits=object$splits, y=object$y)
+    pe <- combineResults(pe, fits=fits(object))
+    ## select optimal tuning parameters
+    best <- selectBest(pe$pe, pe$se, method=object$selectBest, 
+        seFactor=object$seFactor)
+    ## construct return object
+    object[names(pe)] <- pe
+    object[names(best)] <- best
+    object$call <- matchedCall
+    peNames(object) <- peNames  # make sure the names are the same as before
+    object
+}
+
+
+# combine results from the models
+combineResults <- function(x, fits = names(x)) {
+    # initializations
+    m <- length(x)
+    if(is.null(fits)) fits <- defaultFitNames(m)
+    else if(any(i <- fits == "")) fits[i] <- defaultFitNames(m)[i]
+    if(!is.numeric(fits)) fits <- factor(fits, levels=fits)
+    # combine prediction errors and standard errors
+    pe <- combineData(lapply(x, "[[", "pe"), drop=FALSE)
+    pe <- data.frame(Fit=fits, pe, row.names=NULL)
+    se <- combineData(lapply(x, "[[", "se"), drop=FALSE)
+    se <- data.frame(Fit=fits, se, row.names=NULL)
+    out <- list(pe=pe, se=se)
+    # combine results from all replications if available
+    reps <- combineData(lapply(x, "[[", "reps"))
+    if(!is.null(reps)) {
+        R <- nrow(reps) / length(fits)
+        out$reps <- data.frame(Fit=rep(fits, each=R), reps, row.names=NULL)
     }
-    pe <- data.frame(Fit=rep(seq_len(nTuning), each=R), pe, row.names=NULL)
-    if(R > 1) {
-        # compute average prediction errors and standard errors
-        reps <- pe
-        pe <- aggregate(reps[, -1, drop=FALSE], reps[, 1, drop=FALSE], mean)
-        se <- aggregate(reps[, -1, drop=FALSE], reps[, 1, drop=FALSE], sd)
-    } else se <- data.frame(Fit=seq_len(nTuning), se, row.names=NULL)
-    ## find optimal values of tuning parameters
-    if(selectBest == "min") {
+    # return list of combined results
+    out
+}
+
+# select the best model
+selectBest <- function(pe, se, method = c("min", "hastie"), seFactor = NA) {
+    # initializations
+    method <- match.arg(method)
+    # find best model
+    if(method == "min") {
         seFactor <- NA
         best <- sapply(pe[, -1, drop=FALSE], selectMin)
     } else {
@@ -297,12 +346,6 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y,
         best <- sapply(names(pe)[-1], 
             function(j) selectHastie(pe[, j], se[, j], seFactor=seFactor))
     }
-    ## construct return object
-    out <- list(splits=splits, tuning=tuning, best=best, pe=pe, se=se, 
-        selectBest=selectBest, seFactor=seFactor)
-    if(R > 1) out$reps <- reps
-    out$seed <- seed
-    out$call <- matchedCall
-    class(out) <- c("perryTuning", "perrySelect")
-    out
+    # return list
+    list(best=best, selectBest=method, seFactor=seFactor)
 }

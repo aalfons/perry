@@ -66,8 +66,8 @@ perryReshape <- function(x, ...) UseMethod("perryReshape")
 #' @method perryReshape perry
 #' @export
 
-perryReshape.perry <- function(x, 
-    selectBest = c("min", "hastie"), seFactor = 1, ...) {
+perryReshape.perry <- function(x, selectBest = c("min", "hastie"), 
+        seFactor = 1, ...) {
     # initializations
     if(npe(x) == 0 || isTRUE(nfits(x) == 0)) stop("empty object")
     peNames <- peNames(x)

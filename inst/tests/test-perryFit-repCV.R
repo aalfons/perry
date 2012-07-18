@@ -30,7 +30,7 @@ folds <- cvFolds(n, K, R)
 test_that("returned object has class \"perry\" and correct dimensions", {
         ## MM-regression
         lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y, 
-            cost=rtmspe, splits=folds)
+            splits=folds, cost=rtmspe)
         
         expect_is(lmrobCV, "perry")
         lmrobRTMSPE <- lmrobCV$pe
@@ -45,8 +45,8 @@ test_that("returned object has class \"perry\" and correct dimensions", {
         expect_false(any(is.na(lmrobSE)))
         
         ## reweighted and raw LTS
-        ltsCV <- perryFit(ltsFit, x=x, y=y, cost=rtmspe, splits=folds, 
-            predictArgs=list(fit="both"))
+        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds, 
+            predictArgs=list(fit="both"), cost=rtmspe)
         
         expect_is(ltsCV, "perry")
         ltsRTMSPE <- ltsCV$pe

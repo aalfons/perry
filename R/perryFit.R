@@ -235,12 +235,33 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
         seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
     } else set.seed(seed)
     ## compute data splits
-    if(!is.null(getS3method("perrySplits", class(splits), optional=TRUE))) 
-        splits <- perrySplits(n, control=splits)
+    if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
+    ## compute fitted values from the model using all observations for the 
+    ## 0.632 bootstrap estimator (if they are not yet available)
+    if(inherits(splits, "bootSamples") && splits$type == "0.632") {
+        # check if the apparent error has already been computed
+        if(!hasComponent(splits, "yHat")) {
+            # fit the model from all observations
+            if(is.null(data)) {
+                if(is.null(names)) names <- c("x", "y")
+                call[[names[1]]] <- x
+                call[[names[2]]] <- y
+            } else {
+                if(is.null(names)) names <- "data"
+                call[[names]] <- data
+            }
+            fit <- eval(call, envir)
+            # predict the response for all observations
+            if(is.null(data)) 
+                splits$yHat <- doCall(predictFun, fit, x, args=predictArgs)
+            else splits$yHat <- doCall(predictFun, fit, data, args=predictArgs)
+        }
+    }
     ## call workhorse function to compute the predictions
     yHat <- perryPredictions(object, data, x, y, splits=splits, 
-        predictFun=predictFun, predictArgs=predictArgs, envir=envir)
-    ## call workhorse function to compute the prediction loss
+        predictFun=predictFun, predictArgs=predictArgs, names=names, 
+        envir=envir)
+    ## call workhorse function to estimate the prediction loss
     pe <- perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
     ## construct return object
     pe <- c(pe, list(splits=splits, y=y, yHat=yHat, 
@@ -258,29 +279,31 @@ perryFit.perry <- function(object, cost = rmspe, costArgs = list(), ...) {
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryFit")
-    ## call workhorse function to compute the prediction loss
+    peNames <- peNames(object)  # names before recomputing the prediction loss
+    ## call workhorse function to estimate the prediction loss
     pe <- perryCost(object$splits, object$y, object$yHat, 
         cost=cost, costArgs=costArgs)
     ## construct return object
     object[names(pe)] <- pe
     object$call <- matchedCall
+    peNames(object) <- peNames  # make sure the names are the same as before
     object
 }
 
 
-## compute predictions
+## compute the predictions
 
 # generic function to be extensible
 perryPredictions <- function(call, data = NULL, x = NULL, y, splits, 
-    predictFun = predict, predictArgs = list(), names = NULL, 
-    envir = parent.frame()) {
+        predictFun = predict, predictArgs = list(), names = NULL, 
+        envir = parent.frame()) {
     UseMethod("perryPredictions", splits)
 }
 
 # default method for built-in procedures
 perryPredictions.default <- function(call, data = NULL, x = NULL, y, 
-    splits, predictFun = predict, predictArgs = list(), names = NULL, 
-    envir = parent.frame()) {
+        splits, predictFun = predict, predictArgs = list(), names = NULL, 
+        envir = parent.frame()) {
     # define an expression that obtains predictions in one replication
     if(is.null(data)) {
         if(is.null(names)) names <- c("x", "y")
@@ -379,7 +402,7 @@ bootData <- function(i, call, data, x, y, predictFun, predictArgs, names, envir)
 }
 
 
-## compute prediction loss
+## estimate the prediction loss
 
 # generic function to be extensible
 perryCost <- function(splits, y, yHat, cost, costArgs = list()) {

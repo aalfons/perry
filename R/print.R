@@ -14,7 +14,7 @@ print.cvFolds <- function(x, ...) {
     # print information on folds (add space between folds and subsets)
     subsets <- x$subsets
     if(x$R == 1) {
-        cn <- if(is.null(x$grouping)) "Index" else "Group index"
+        cn <- if(hasComponent(x, "grouping")) "Group index" else "Index"
         nblanks <- 2
     } else {
         cn <- as.character(seq_len(x$R))
@@ -33,12 +33,12 @@ print.randomSplits <- function(x, ...) {
     # print general information
     if(x$R == 1) {
         cat("\nRandom split\n")
-        cn <- if(is.null(x$grouping)) "Index" else "Group index"
+        cn <- if(hasComponent(x, "grouping")) "Group index" else "Index"
     } else {
         cat(sprintf("\n%d random splits\n", x$R))
         cn <- as.character(seq_len(x$R))
     }
-    prefix <- if(is.null(x$grouping)) "Observations" else "Groups"
+    prefix <- if(hasComponent(x, "grouping")) "Groups" else "Observations"
     cat(sprintf("%s in test data:\n", prefix))
     # print indices of items in test data
     subsets <- x$subsets
@@ -53,12 +53,12 @@ print.bootSamples <- function(x, ...) {
     # print general information
     if(x$R == 1) {
         postfix <- "sample"
-        cn <- if(is.null(x$grouping)) "Index" else "Group index"
+        cn <- if(hasComponent(x, "grouping")) "Group index" else "Index"
     } else {
         postfix <- "samples"
         cn <- as.character(seq_len(x$R))
     }
-    prefix <- if(is.null(x$grouping)) "Observations" else "Groups"
+    prefix <- if(hasComponent(x, "grouping")) "Groups" else "Observations"
     cat(sprintf("\n%s in the bootstrap %s:\n", prefix, postfix))
     # print indices of items in test data
     samples <- x$samples

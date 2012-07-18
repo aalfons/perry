@@ -63,7 +63,7 @@ peNames.perrySelect <- function(x) names(x$pe)[-1]
 "peNames<-.perry" <- function(x, value) {
     object <- x
     names(object$pe) <- names(object$se) <- value
-    if(!is.null(x$reps)) colnames(object$reps) <- value
+    if(hasComponent(object, "reps")) colnames(object$reps) <- value
     eval.parent(substitute(x <- object))
 }
 
@@ -73,7 +73,7 @@ peNames.perrySelect <- function(x) names(x$pe)[-1]
     names(object$best) <- value
     value <- c("Fit", value)
     names(object$pe) <- names(object$se) <- value
-    if(!is.null(x$reps)) names(object$reps) <- value
+    if(hasComponent(object, "reps")) names(object$reps) <- value
     eval.parent(substitute(x <- object))
 }
 
@@ -106,6 +106,7 @@ fits.perrySelect <- function(x) x$pe$Fit
         indices <- match(reps$Fit, x$pe$Fit, nomatch=0)
         object$reps$Fit <- value[indices]
     }
+    names(object$yHat) <- value
     eval.parent(substitute(x <- object))
 }
 

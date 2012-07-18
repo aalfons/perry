@@ -76,6 +76,15 @@ doCall <- function(fun, ..., args = list()) {
     } else do.call(fun, c(list(...), args))
 }
 
+# check if a list or object has a certain component
+hasComponent <- function(x, name) name %in% names(x)
+
+# check if a generic function has a method for a certain class
+# function name needs to be supplied instead of the function itself
+hasMethod <- function(fun, class) {
+    !is.null(getS3method(fun, class, optional=TRUE))
+}
+
 # retrieve the number of observations
 nobs.default <- function(object, ...) {
     n <- nrow(object)                   # matrix or data.frame
