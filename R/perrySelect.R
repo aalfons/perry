@@ -11,8 +11,8 @@
 #' Keep in mind that objects inheriting from class \code{"perry"} or 
 #' \code{"perrySelect"} may contain multiple columns of prediction error 
 #' results.  This is the case if the response is univariate but the 
-#' \code{\link[stats]{predict}} method of the fitted model returns a 
-#' matrix.  
+#' function to compute predictions (usually the \code{\link[stats]{predict}} 
+#' method of the fitted model) returns a matrix.
 #' 
 #' The \code{.reshape} argument determines how to handle such objects.  If 
 #' \code{.reshape} is \code{FALSE}, all objects are required to have the same 
@@ -26,13 +26,16 @@
 #' results are first transformed with \code{\link{perryReshape}} to have only 
 #' one column.  Then the best overall model is selected.
 #' 
-#' It should also be noted that the argument names of \code{.reshape}, 
-#' \code{.selectBest} and \code{.seFacor} start with a dot to avoid conflicts 
-#' with the argument names used for the objects containing prediction error 
-#' results.
+#' It should also be noted that the argument names of \code{.list}, 
+#' \code{.reshape}, \code{.selectBest} and \code{.seFacor} start with a dot to 
+#' avoid conflicts with the argument names used for the objects containing 
+#' prediction error results.
 #' 
 #' @param \dots  objects inheriting from class \code{"perry"} or 
 #' \code{"perrySelect"} that contain prediction error results.
+#' @param .list  a list of objects  inheriting from class \code{"perry"} or 
+#' \code{"perrySelect"}.  If supplied, this is preferred over objects supplied 
+#' via the \dots argument.
 #' @param .reshape  a logical indicating whether objects with more than one 
 #' column of prediction error results should be reshaped to have only one 
 #' column (see \dQuote{Details}).
@@ -53,25 +56,29 @@
 #' @aliases print.perrySelect
 #' 
 #' @returnClass perrySelect
-#' @returnItem splits  an object giving the data splits used to estimate the 
-#' prediction error of the models.
-#' @returnItem best  an integer vector giving the indices of the models with 
-#' the best prediction performance.
 #' @returnItem pe  a data frame containing the estimated prediction errors for 
 #' the models.  In case of more than one resampling replication, those are 
 #' average values over all replications.
 #' @returnItem se  a data frame containing the estimated standard errors of the 
 #' prediction loss for the models.
+#' @returnItem reps  a data frame containing the estimated prediction errors 
+#' for the models from all replications.  This is only returned in case of more 
+#' than one resampling replication.
+#' @returnItem splits  an object giving the data splits used to estimate the 
+#' prediction error of the models.
+#' @returnItem y  the response.
+#' @returnItem yHat  a list containing the predicted values for the 
+#' models.  Each list component is again a list containing the corresponding 
+#' predicted values from all replications.
+#' @returnItem best  an integer vector giving the indices of the models with 
+#' the best prediction performance.
 #' @returnItem selectBest  a character string specifying the criterion used for 
 #' selecting the best model.
 #' @returnItem seFactor  a numeric value giving the multiplication factor of 
 #' the standard error used for the selection of the best model.
-#' @returnItem reps  a data frame containing the estimated prediction errors 
-#' for the models from all replications.  This is only returned in case of more 
-#' than one resampling replication.
 #' 
-#' @note To ensure comparability, the prediction errors for all models need to 
-#' be computed from the same data splits.
+#' @note To ensure comparability, the prediction errors for all models are 
+#' required to be computed from the same data splits.
 #' 
 #' @author Andreas Alfons
 #' 
@@ -105,7 +112,8 @@ perrySelect <- function(..., .list = list(...), .reshape = FALSE,
     isPerrySelect <- isPerrySelect[keep]
     # check if the same response has been used
     y <- unique(lapply(.list, "[[", "y"))
-    if(length(y) > 1) stop("all objects must be computed with the response")
+    if(length(y) > 1) 
+        stop("all objects must be computed with the same response")
     else y <- y[[1]]
     # check if the same data splits have been used
     splits <- unique(lapply(.list, "[[", "splits"))

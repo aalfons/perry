@@ -58,16 +58,6 @@
   \item{args}{a list of additional arguments to be passed
   to the model fitting function.}
 
-  \item{cost}{a cost function measuring prediction loss.
-  It should expect the observed values of the response to
-  be passed as the first argument and the predicted values
-  as the second argument, and must return either a
-  non-negative scalar value, or a list with the first
-  component containing the prediction error and the second
-  component containing the standard error.  The default is
-  to use the root mean squared prediction error (see
-  \code{\link{cost}}).}
-
   \item{splits}{an object of class \code{"cvFolds"} (as
   returned by \code{\link{cvFolds}}) or a control object of
   class \code{"foldControl"} (see
@@ -82,16 +72,33 @@
   \code{"bootControl"} (see \code{\link{bootControl}})
   defining bootstrap samples.}
 
-  \item{names}{an optional character vector giving names
-  for the arguments containing the data to be used in the
-  function call (see \dQuote{Details}).}
+  \item{predictFun}{a function to compute predictions for
+  the test data.  It should expect the fitted model to be
+  passed as the first argument and the test data as the
+  second argument, and must return either a vector or a
+  matrix containing the predicted values.  The default is
+  to use the \code{\link[stats]{predict}} method of the
+  fitted model.}
 
   \item{predictArgs}{a list of additional arguments to be
-  passed to the \code{\link[stats]{predict}} method of the
-  fitted models.}
+  passed to \code{predictFun}.}
+
+  \item{cost}{a cost function measuring prediction loss.
+  It should expect the observed values of the response to
+  be passed as the first argument and the predicted values
+  as the second argument, and must return either a
+  non-negative scalar value, or a list with the first
+  component containing the prediction error and the second
+  component containing the standard error.  The default is
+  to use the root mean squared prediction error (see
+  \code{\link{cost}}).}
 
   \item{costArgs}{a list of additional arguments to be
   passed to the prediction loss function \code{cost}.}
+
+  \item{names}{an optional character vector giving names
+  for the arguments containing the data to be used in the
+  function call (see \dQuote{Details}).}
 
   \item{envir}{the \code{\link{environment}} in which to
   evaluate the function call for fitting the models (see
@@ -106,9 +113,6 @@
   An object of class \code{"perry"} with the following
   components:
 
-  \item{splits}{an object giving the data splits used to
-  estimate the prediction error.}
-
   \item{pe}{a numeric vector containing the respective
   estimated prediction errors.  In case of more than one
   replication, those are average values over all
@@ -121,6 +125,14 @@
   contains the respective estimated prediction errors from
   all replications.  This is only returned in case of more
   than one replication.}
+
+  \item{splits}{an object giving the data splits used to
+  estimate the prediction error.}
+
+  \item{y}{the response.}
+
+  \item{yHat}{a list containing the predicted values from
+  all replications.}
 
   \item{seed}{the seed of the random number generator
   before estimation of the prediction error.}
@@ -143,9 +155,8 @@
   (given by \code{folds}).  Each of the \eqn{K} data blocks
   is left out once to fit the model, and predictions are
   computed for the observations in the left-out block with
-  the \code{\link[stats]{predict}} method of the fitted
-  model.  Thus a prediction is obtained for each
-  observation.  The response variable and the obtained
+  \code{predictFun}.  Thus a prediction is obtained for
+  each observation.  The response variable and the obtained
   predictions for all observations are then passed to the
   prediction loss function \code{cost} to estimate the
   prediction error.  For repeated \eqn{K}-fold
@@ -171,11 +182,10 @@
   prediction loss of the fitted values of the model
   computed from the full sample.
 
-  In any case, if the response is a vector but the
-  \code{\link[stats]{predict}} method of the fitted models
-  returns a matrix, the prediction error is computed for
-  each column.  A typical use case for this behavior would
-  be if the \code{\link[stats]{predict}} method returns
+  In any case, if the response is a vector but
+  \code{predictFun} returns a matrix, the prediction error
+  is computed for each column.  A typical use case for this
+  behavior would be if \code{predictFun} returns
   predictions from an initial model fit and stepwise
   improvements thereof.
 
@@ -211,10 +221,9 @@
   Andreas Alfons
 }
 \seealso{
-  \code{\link{perryTool}}, \code{\link{perrySelect}},
-  \code{\link{perryTuning}}, \code{\link{cvFolds}},
-  \code{\link{randomSplits}}, \code{\link{bootSamples}},
-  \code{\link{cost}}
+  \code{\link{perrySelect}}, \code{\link{perryTuning}},
+  \code{\link{cvFolds}}, \code{\link{randomSplits}},
+  \code{\link{bootSamples}}, \code{\link{cost}}
 }
 \keyword{utilities}
 

@@ -11,6 +11,11 @@
   or \code{"perrySelect"} that contain prediction error
   results.}
 
+  \item{.list}{a list of objects inheriting from class
+  \code{"perry"} or \code{"perrySelect"}.  If supplied,
+  this is preferred over objects supplied via the \dots
+  argument.}
+
   \item{.reshape}{a logical indicating whether objects with
   more than one column of prediction error results should
   be reshaped to have only one column (see
@@ -40,12 +45,6 @@
   An object of class \code{"perrySelect"} with the
   following components:
 
-  \item{splits}{an object giving the data splits used to
-  estimate the prediction error of the models.}
-
-  \item{best}{an integer vector giving the indices of the
-  models with the best prediction performance.}
-
   \item{pe}{a data frame containing the estimated
   prediction errors for the models.  In case of more than
   one resampling replication, those are average values over
@@ -54,17 +53,30 @@
   \item{se}{a data frame containing the estimated standard
   errors of the prediction loss for the models.}
 
+  \item{reps}{a data frame containing the estimated
+  prediction errors for the models from all replications.
+  This is only returned in case of more than one resampling
+  replication.}
+
+  \item{splits}{an object giving the data splits used to
+  estimate the prediction error of the models.}
+
+  \item{y}{the response.}
+
+  \item{yHat}{a list containing the predicted values for
+  the models.  Each list component is again a list
+  containing the corresponding predicted values from all
+  replications.}
+
+  \item{best}{an integer vector giving the indices of the
+  models with the best prediction performance.}
+
   \item{selectBest}{a character string specifying the
   criterion used for selecting the best model.}
 
   \item{seFactor}{a numeric value giving the multiplication
   factor of the standard error used for the selection of
   the best model.}
-
-  \item{reps}{a data frame containing the estimated
-  prediction errors for the models from all replications.
-  This is only returned in case of more than one resampling
-  replication.}
 }
 \description{
   Combine resampling-based prediction error results for
@@ -75,8 +87,9 @@
   Keep in mind that objects inheriting from class
   \code{"perry"} or \code{"perrySelect"} may contain
   multiple columns of prediction error results.  This is
-  the case if the response is univariate but the
-  \code{\link[stats]{predict}} method of the fitted model
+  the case if the response is univariate but the function
+  to compute predictions (usually the
+  \code{\link[stats]{predict}} method of the fitted model)
   returns a matrix.
 
   The \code{.reshape} argument determines how to handle
@@ -96,14 +109,15 @@
   the best overall model is selected.
 
   It should also be noted that the argument names of
-  \code{.reshape}, \code{.selectBest} and \code{.seFacor}
-  start with a dot to avoid conflicts with the argument
-  names used for the objects containing prediction error
-  results.
+  \code{.list}, \code{.reshape}, \code{.selectBest} and
+  \code{.seFacor} start with a dot to avoid conflicts with
+  the argument names used for the objects containing
+  prediction error results.
 }
 \note{
   To ensure comparability, the prediction errors for all
-  models need to be computed from the same data splits.
+  models are required to be computed from the same data
+  splits.
 }
 \author{
   Andreas Alfons

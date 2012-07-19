@@ -16,13 +16,13 @@
 #' way.  The data are first split into \eqn{K} previously obtained blocks of 
 #' approximately equal size (given by \code{folds}).  Each of the \eqn{K} data 
 #' blocks is left out once to fit the model, and predictions are computed for 
-#' the observations in the left-out block with the \code{\link[stats]{predict}} 
-#' method of the fitted model.  Thus a prediction is obtained for each 
-#' observation.  The response variable and the obtained predictions for all 
-#' observations are then passed to the prediction loss function \code{cost} to 
-#' estimate the prediction error.  For repeated \eqn{K}-fold cross-validation 
-#' (as indicated by \code{splits}), this process is replicated and the 
-#' estimated prediction errors from all replications are returned.
+#' the observations in the left-out block with \code{predictFun}.  Thus a 
+#' prediction is obtained for each observation.  The response variable and the 
+#' obtained predictions for all observations are then passed to the prediction 
+#' loss function \code{cost} to estimate the prediction error.  For repeated 
+#' \eqn{K}-fold cross-validation (as indicated by \code{splits}), this process 
+#' is replicated and the estimated prediction errors from all replications are 
+#' returned.
 #' 
 #' (Repeated) random splitting is performed similarly.  In each replication, 
 #' the data are split into a training set and a test set at random.  Then the 
@@ -39,11 +39,10 @@
 #' prediction loss of the fitted values of the model computed from the full 
 #' sample.
 #' 
-#' In any case, if the response is a vector but the 
-#' \code{\link[stats]{predict}} method of the fitted models returns a matrix, 
-#' the prediction error is computed for each column.  A typical use case for 
-#' this behavior would be if the \code{\link[stats]{predict}} method returns 
-#' predictions from an initial model fit and stepwise improvements thereof.
+#' In any case, if the response is a vector but \code{predictFun} returns a 
+#' matrix, the prediction error is computed for each column.  A typical use 
+#' case for this behavior would be if \code{predictFun} returns predictions 
+#' from an initial model fit and stepwise improvements thereof.
 #' 
 #' If \code{formula} or \code{data} are supplied, all variables required for 
 #' fitting the models are added as one argument to the function call, which is 
@@ -86,13 +85,6 @@
 #' for all possible combinations of tuning parameter values.
 #' @param args  a list of additional arguments to be passed to the model 
 #' fitting function.
-#' @param cost  a cost function measuring prediction loss.  It should expect 
-#' the observed values of the response to be passed as the first argument and 
-#' the predicted values as the second argument, and must return either a 
-#' non-negative scalar value, or a list with the first component containing 
-#' the prediction error and the second component containing the standard 
-#' error.  The default is to use the root mean squared prediction error 
-#' (see \code{\link{cost}}).
 #' @param splits  an object of class \code{"cvFolds"} (as returned by 
 #' \code{\link{cvFolds}}) or a control object of class \code{"foldControl"} 
 #' (see \code{\link{foldControl}}) defining the folds of the data for 
@@ -103,10 +95,20 @@
 #' class \code{"bootSamples"} (as returned by \code{\link{bootSamples}}) or a 
 #' control object of class \code{"bootControl"} (see \code{\link{bootControl}}) 
 #' defining bootstrap samples.
-#' @param names  an optional character vector giving names for the arguments 
-#' containing the data to be used in the function call (see \dQuote{Details}).
-#' @param predictArgs  a list of additional arguments to be passed to the 
-#' \code{\link[stats]{predict}} method of the fitted models.
+#' @param predictFun  a function to compute predictions for the test data.  It 
+#' should expect the fitted model to be passed as the first argument and the test 
+#' data as the second argument, and must return either a vector or a matrix 
+#' containing the predicted values.  The default is to use the 
+#' \code{\link[stats]{predict}} method of the fitted model.
+#' @param predictArgs  a list of additional arguments to be passed to  
+#' \code{predictFun}.
+#' @param cost  a cost function measuring prediction loss.  It should expect 
+#' the observed values of the response to be passed as the first argument and 
+#' the predicted values as the second argument, and must return either a 
+#' non-negative scalar value, or a list with the first component containing 
+#' the prediction error and the second component containing the standard 
+#' error.  The default is to use the root mean squared prediction error 
+#' (see \code{\link{cost}}).
 #' @param costArgs  a list of additional arguments to be passed to the 
 #' prediction loss function \code{cost}.
 #' @param selectBest  a character string specifying a criterion for selecting 
@@ -122,6 +124,8 @@
 #' @param seFactor  a numeric value giving a multiplication factor of the 
 #' standard error for the selection of the best model.  This is ignored if 
 #' \code{selectBest} is \code{"min"}.
+#' @param names  an optional character vector giving names for the arguments 
+#' containing the data to be used in the function call (see \dQuote{Details}).
 #' @param envir  the \code{\link{environment}} in which to evaluate the 
 #' function call for fitting the models (see \code{\link{eval}}).
 #' @param seed  optional initial seed for the random number generator (see 
@@ -134,24 +138,28 @@
 #' 
 #' Otherwise an object of class \code{"perryTuning"} (which inherits from class 
 #' \code{"perrySelect"}) with the following components is returned:
-#' @returnItem splits  an object giving the data splits used to estimate the 
-#' prediction error.
-#' @returnItem tuning  a data frame containing the grid of tuning parameter 
-#' values for which the prediction error was estimated.
-#' @returnItem best  an integer vector giving the indices of the optimal 
-#' combinations of tuning parameters.
 #' @returnItem pe  a data frame containing the estimated prediction errors for 
 #' all combinations of tuning parameter values.  In case of more than one 
 #' replication, those are average values over all replications.
 #' @returnItem se  a data frame containing the estimated standard errors of the 
 #' prediction loss for all combinations of tuning parameter values.
+#' @returnItem reps  a data frame containing the estimated prediction errors 
+#' from all replications for all combinations of tuning parameter values.  This 
+#' is only returned in case of more than one replication.
+#' @returnItem splits  an object giving the data splits used to estimate the 
+#' prediction error.
+#' @returnItem y  the response.
+#' @returnItem yHat  a list containing the predicted values for all 
+#' combinations of tuning parameter values.  Each list component is again a 
+#' list containing the corresponding predicted values from all replications.
+#' @returnItem best  an integer vector giving the indices of the optimal 
+#' combinations of tuning parameters.
 #' @returnItem selectBest  a character string specifying the criterion used for 
 #' selecting the best model.
 #' @returnItem seFactor  a numeric value giving the multiplication factor of 
 #' the standard error used for the selection of the best model.
-#' @returnItem reps  a data frame containing the estimated prediction errors 
-#' from all replications for all combinations of tuning parameter values.  This 
-#' is only returned in case of more than one replication.
+#' @returnItem tuning  a data frame containing the grid of tuning parameter 
+#' values for which the prediction error was estimated.
 #' @returnItem seed  the seed of the random number generator before estimation 
 #' of the prediction error.
 #' @returnItem call  the matched function call.
@@ -166,10 +174,9 @@
 #' Statistical Learning: Data Mining, Inference, and Prediction}.  Springer, 
 #' 2nd edition.
 #' 
-#' @seealso \code{\link{perryTool}}, \code{\link{perryFit}}, 
-#' \code{\link{perrySelect}}, \code{\link{cvFolds}}, 
-#' \code{\link{randomSplits}}, \code{\link{bootSamples}}, 
-#' \code{\link{cost}}
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#' \code{\link{cvFolds}}, \code{\link{randomSplits}}, 
+#' \code{\link{bootSamples}}, \code{\link{cost}}
 #' 
 ## @example inst/doc/examples/example-perryTuning.R
 #' 
