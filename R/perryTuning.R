@@ -256,8 +256,9 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
     ## compute data splits
     if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
     ## compute the predictions for each combination of tuning parameters
+    fits <- seq_len(nTuning)
     tuningNames <- names(tuning)
-    yHat <- lapply(seq_len(nTuning), 
+    yHat <- lapply(fits, 
         function(i) {
             # add tuning parameters to function call
             for(j in seq_len(pTuning)) {
@@ -271,10 +272,11 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
     ## estimate the prediction loss for each combination of tuning parameters
     pe <- lapply(yHat, 
         function(yHat) perryCost(splits, y, yHat, cost=cost, costArgs=costArgs))
-    pe <- combineResults(pe, fits=seq_len(nTuning))
+    pe <- combineResults(pe, fits=fits)
     ## select optimal tuning parameters
     best <- selectBest(pe$pe, pe$se, method=selectBest, seFactor=seFactor)
     ## construct return object
+    names(yHat) <- fits
     pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best, 
         list(tuning=tuning, seed=seed, call=matchedCall))
     class(pe) <- c("perryTuning", "perrySelect")
@@ -291,6 +293,7 @@ perryTuning.perryTuning <- function(object, cost = rmspe,
     ## initializations
     matchedCall <- match.call()
     matchedCall[[1]] <- as.name("perryTuning")
+    if(npe(object) == 0 || isTRUE(nfits(object) == 0)) stop("empty object")
     peNames <- peNames(object)  # names before re-estimating the prediction loss
     ## re-estimate the prediction loss for each combination of tuning parameters
     pe <- lapply(object$yHat, 

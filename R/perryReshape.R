@@ -59,16 +59,11 @@
 #' 
 #' @export
 
-perryReshape <- function(x, ...) UseMethod("perryReshape")
-
-
-#' @rdname perryReshape
-#' @method perryReshape perry
-#' @export
-
-perryReshape.perry <- function(x, selectBest = c("min", "hastie"), 
+perryReshape <- function(x, selectBest = c("min", "hastie"), 
         seFactor = 1, ...) {
     # initializations
+    if(!inherits(x, c("perry", "perrySelect"))) 
+        stop("object must inherit from class \"perry\" or \"perrySelect\"")
     if(npe(x) == 0 || isTRUE(nfits(x) == 0)) stop("empty object")
     peNames <- peNames(x)
     # create list of objects with one column
@@ -86,14 +81,5 @@ perryReshape.perry <- function(x, selectBest = c("min", "hastie"),
     }
     # call perrySelect() to combine the model fits
     names(objects) <- peNames
-    objects$.selectBest <- selectBest
-    objects$.seFactor <- seFactor
-    do.call(perrySelect, objects)
+    perrySelect(.list=objects, .selectBest=selectBest, .seFactor=seFactor)
 }
-
-
-#' @rdname perryReshape
-#' @method perryReshape perrySelect
-#' @export
-
-perryReshape.perrySelect <- perryReshape.perry

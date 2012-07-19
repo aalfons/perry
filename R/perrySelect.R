@@ -156,7 +156,7 @@ perrySelect <- function(..., .list = list(...), .reshape = FALSE,
     ## select optimal tuning parameters
     best <- selectBest(pe$pe, pe$se, method=.selectBest, seFactor=.seFactor)
     ## combine predictions
-    yHat <- lapply(.list, "[[", "yHat")
+    yHat <- unlist(lapply(.list, "[[", "yHat"), recursive=FALSE)
     ## construct return object
     pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best)
     class(pe) <- "perrySelect"

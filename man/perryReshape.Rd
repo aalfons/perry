@@ -1,16 +1,9 @@
 \name{perryReshape}
 \alias{perryReshape}
-\alias{perryReshape.perry}
-\alias{perryReshape.perrySelect}
 \title{Reshape resampling-based prediction error results}
 \usage{
-  perryReshape(x, ...)
-
-  \method{perryReshape}{perry} (x,
-    selectBest = c("min", "hastie"), seFactor = 1, ...)
-
-  \method{perryReshape}{perrySelect} (x,
-    selectBest = c("min", "hastie"), seFactor = 1, ...)
+  perryReshape(x, selectBest = c("min", "hastie"),
+    seFactor = 1, ...)
 }
 \arguments{
   \item{x}{an object inheriting from class \code{"perry"}
