@@ -8,7 +8,7 @@ perry <- function(object, ...) UseMethod("perry")
 
 ## LS regression 
 #' @S3method perry lm
-perry.lm <- function(object, cost = rmspe, splits = foldControl(), 
+perry.lm <- function(object, splits = foldControl(), cost = rmspe, 
         seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
@@ -31,7 +31,7 @@ perry.lm <- function(object, cost = rmspe, splits = foldControl(),
     }
     if(is.null(y <- object$y)) y <- model.response(data)
     ## call function perryFit() to estimate the prediction error
-    out <- perryFit(object, data=data, y=y, cost=cost, splits=splits, 
+    out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
         costArgs=list(...), envir=parent.frame(), seed=seed)
     out$call <- matchedCall
     out
@@ -39,7 +39,7 @@ perry.lm <- function(object, cost = rmspe, splits = foldControl(),
 
 ## MM and SDMD regression
 #' @S3method perry lmrob
-perry.lmrob <- function(object, cost = rtmspe, splits = foldControl(), 
+perry.lmrob <- function(object, splits = foldControl(), cost = rtmspe, 
         seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
@@ -62,7 +62,7 @@ perry.lmrob <- function(object, cost = rtmspe, splits = foldControl(),
     }
     if(is.null(y <- object$y)) y <- model.response(data)
     ## call function perryFit() to estimate the prediction error
-    out <- perryFit(object, data=data, y=y, cost=cost, splits=splits, 
+    out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
         costArgs=list(...), envir=parent.frame(), seed=seed)
     out$call <- matchedCall
     out
@@ -70,8 +70,9 @@ perry.lmrob <- function(object, cost = rtmspe, splits = foldControl(),
 
 ## LTS regression
 #' @S3method perry lts
-perry.lts <- function(object, cost = rtmspe, splits = foldControl(), 
-        fit = c("reweighted", "raw", "both"), seed = NULL, ...) {
+perry.lts <- function(object, splits = foldControl(), 
+        fit = c("reweighted", "raw", "both"), cost = rtmspe, 
+        seed = NULL, ...) {
     ## initializations
     matchedCall <- match.call()
     object <- object
@@ -99,9 +100,8 @@ perry.lts <- function(object, cost = rtmspe, splits = foldControl(),
     call$data <- NULL
     call$intercept <- object$intercept
     ## call function perryFit() to estimate the prediction error
-    out <- perryFit(call, x=x, y=y, cost=cost, splits=splits, 
-        predictArgs=list(fit=fit), costArgs=list(...), 
-        envir=parent.frame(), seed=seed)
+    out <- perryFit(call, x=x, y=y, splits=splits, predictArgs=list(fit=fit), 
+        cost=cost, costArgs=list(...), envir=parent.frame(), seed=seed)
     out$call <- matchedCall
     out
 }
@@ -111,36 +111,35 @@ perry.lts <- function(object, cost = rtmspe, splits = foldControl(),
 
 ## (repeated) K-fold cross validation
 #' @export
-repCV <- function(object, cost = rmspe, K = 5, R = 1, 
+repCV <- function(object, K = 5, R = 1, 
         foldType = c("random", "consecutive", "interleaved"), 
-        grouping = NULL, folds = NULL, ...) {
+        grouping = NULL, folds = NULL, cost = rmspe, ...) {
     ## initializations
     if(is.null(folds)) {
         folds <- foldControl(K, R, type=foldType, grouping=grouping)
     }
     ## call function perry() to estimate the prediction error
-    perry(object, cost=cost, splits=folds, ...)
+    perry(object, splits=folds, cost=cost, ...)
 }
 
 ## repeated random splitting
 #' @export
-repRS <- function(object, cost = rmspe, m, R = 1, grouping = NULL, 
-        splits = NULL, ...) {
+repRS <- function(object, m, R = 1, grouping = NULL, 
+        splits = NULL, cost = rmspe, ...) {
     ## initializations
     if(is.null(splits)) splits <- splitControl(m, R, grouping=grouping)
     ## call function perry() to estimate the prediction error
-    perry(object, cost=cost, splits=splits, ...)
+    perry(object, splits=splits, cost=cost, ...)
 }
 
 ## bootstrap
 #' @export
-bootPE <- function(object, cost = rmspe, R = 1, 
-        peType = c("0.632", "out-of-bag"), grouping = NULL, 
-        samples = NULL, ...) {
+bootPE <- function(object, R = 1, peType = c("0.632", "out-of-bag"), 
+        grouping = NULL, samples = NULL, cost = rmspe, ...) {
     ## initializations
     if(is.null(samples)) {
         samples <- bootControl(R, type=peType, grouping=grouping)
     }
     ## call function perry() to estimate the prediction error
-    perry(object, cost=cost, splits=samples, ...)
+    perry(object, splits=samples, cost=cost, ...)
 }

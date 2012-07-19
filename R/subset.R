@@ -126,15 +126,6 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
 }
 
 
-# check selection indices
-checkSelect <- function(select = NULL, names, returnNames = TRUE) {
-    all <- seq_along(names)
-    names(all) <- names               # works for characters
-    select <- unique(all[select])     # remove duplicates
-    select <- select[!is.na(select)]  # remove nomatches
-    if(returnNames) names[select] else select
-}
-
 # extract subsets of predictions
 # p ... number of columns in the response
 subsetPredictions <- function(yHat, select, p) {

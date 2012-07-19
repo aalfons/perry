@@ -25,11 +25,43 @@ addNames.default <- function(x) {
     x
 }
 
+# check selection indices for subsets
+checkSelect <- function(select = NULL, names, returnNames = TRUE) {
+    all <- seq_along(names)
+    names(all) <- names               # works for characters
+    select <- unique(all[select])     # remove duplicates
+    select <- select[!is.na(select)]  # remove nomatches
+    if(returnNames) names[select] else select
+}
+
 # combine data (used for predictions from PE folds)
 combineData <- function(x, drop = TRUE) {
     if(drop && is.null(dim(x[[1]]))) {
         unlist(x)
     } else do.call(rbind, x)
+}
+
+# combine prediction error results from a list of models
+combineResults <- function(x, fits = names(x)) {
+    # initializations
+    m <- length(x)
+    if(is.null(fits)) fits <- defaultFitNames(m)
+    else if(any(i <- fits == "")) fits[i] <- defaultFitNames(m)[i]
+    if(!is.numeric(fits)) fits <- factor(fits, levels=fits)
+    # combine prediction errors and standard errors
+    pe <- combineData(lapply(x, "[[", "pe"), drop=FALSE)
+    pe <- data.frame(Fit=fits, pe, row.names=NULL)
+    se <- combineData(lapply(x, "[[", "se"), drop=FALSE)
+    se <- data.frame(Fit=fits, se, row.names=NULL)
+    out <- list(pe=pe, se=se)
+    # combine results from all replications if available
+    reps <- combineData(lapply(x, "[[", "reps"))
+    if(!is.null(reps)) {
+        R <- nrow(reps) / length(fits)
+        out$reps <- data.frame(Fit=rep(fits, each=R), reps, row.names=NULL)
+    }
+    # return list of combined results
+    out
 }
 
 # retrieve data subsets
@@ -98,6 +130,23 @@ removeIntercept <- function(x, pos) {
         pos <- match(c("Intercept","(Intercept)"), colnames(x), nomatch = 0)
         if(any(pos > 0)) x[, -pos, drop=FALSE] else x
     } else x[, -pos, drop=FALSE]
+}
+
+# select the best model
+selectBest <- function(pe, se, method = c("min", "hastie"), seFactor = NA) {
+    # initializations
+    method <- match.arg(method)
+    # find best model
+    if(method == "min") {
+        seFactor <- NA
+        best <- sapply(pe[, -1, drop=FALSE], selectMin)
+    } else {
+        seFactor <- rep(seFactor, length.out=1)
+        best <- sapply(names(pe)[-1], 
+            function(j) selectHastie(pe[, j], se[, j], seFactor=seFactor))
+    }
+    # return list
+    list(best=best, selectBest=method, seFactor=seFactor)
 }
 
 # find which bootstrap samples have all observations in the bag

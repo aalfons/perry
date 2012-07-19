@@ -18,8 +18,7 @@
   prediction error results.}
 
   \item{select}{a character, integer or logical vector
-  indicating the columns of prediction error results to be
-  extracted.}
+  indicating the prediction error results to be extracted.}
 
   \item{\dots}{currently ignored.}
 }

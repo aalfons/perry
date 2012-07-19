@@ -31,7 +31,7 @@
 
 summary.perry <- function(object, ...) {
     pe <- aggregate(object, summary)
-    out <- list(splits=object$splits, pe=pe)
+    out <- list(pe=pe, splits=object$splits)
     class(out) <- "summary.perry"
     out
 }
@@ -43,7 +43,7 @@ summary.perry <- function(object, ...) {
 
 summary.perrySelect <- function(object, ...) {
     pe <- aggregate(object, summary)
-    out <- list(splits=object$splits, best=object$best, pe=pe)
+    out <- list(pe=pe, splits=object$splits, best=object$best)
     class(out) <- "summary.perrySelect"
     out
 }
@@ -55,8 +55,8 @@ summary.perrySelect <- function(object, ...) {
 
 summary.perryTuning <- function(object, ...) {
     out <- summary.perrySelect(object, ...)
-    out <- list(splits=object$splits, tuning=object$tuning, 
-        best=out$best, pe=out$pe)
+    out <- list(pe=out$pe, splits=object$splits, 
+        best=out$best, tuning=object$tuning)
     class(out) <- c("summary.perryTuning", class(out))
     out
 }

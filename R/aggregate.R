@@ -43,7 +43,10 @@
 
 aggregate.perry <- function(x, FUN = mean, select = NULL, ...) {
     if(is.null(PE <- x$reps)) PE <- t(x$pe)  # matrix is required
-    if(!is.null(select)) PE <- PE[, select, drop=FALSE]
+    if(!is.null(select)) {
+        select <- checkSelect(select, peNames(x))
+        PE <- PE[, select, drop=FALSE]
+    }
     apply(PE, 2, FUN=FUN, ...)
 }
 
@@ -56,9 +59,7 @@ aggregate.perrySelect <- function(x, FUN = mean, select = NULL, ...) {
     by <- "Fit"
     if(is.null(PE <- x$reps)) PE <- x$pe
     peNames <- peNames(x)
-    if(is.null(select)) {
-        select <- peNames
-    } else if(!is.character(select)) select <- peNames[select]
+    select <- if(is.null(select)) peNames else checkSelect(select, peNames)
     aggregate(PE[, select, drop=FALSE], by=PE[, by, drop=FALSE], FUN=FUN, ...)
 }
 

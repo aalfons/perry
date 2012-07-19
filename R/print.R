@@ -7,9 +7,7 @@
 print.cvFolds <- function(x, ...) {
     # print general information
     cvText <- getPrefix(x)
-    if(x$R > 1) {
-        cvText <- paste(cvText, "with", x$R, "replications")
-    }
+    if(x$R > 1) cvText <- paste(cvText, "with", x$R, "replications")
     cat(paste("\n", cvText, ":", sep=""))
     # print information on folds (add space between folds and subsets)
     subsets <- x$subsets
@@ -107,9 +105,8 @@ print.perryTuning <- print.summary.perryTuning <- function(x, best = TRUE, ...) 
     print(cbind(x$tuning, x$pe[, -1, drop=FALSE]), ...)
     # print optimal value for tuning parameters if requested
     if(isTRUE(best)) {
-        if(ncol(x$tuning) == 1) {
-            cat("\nOptimal tuning parameter:\n")
-        } else cat("\nOptimal tuning parameters:\n")
+        if(ncol(x$tuning) == 1) cat("\nOptimal tuning parameter:\n")
+        else cat("\nOptimal tuning parameters:\n")
         best <- x$best
         optimalTuning <- x$tuning[best, , drop=FALSE]
         rownames(optimalTuning) <- names(best)
@@ -125,17 +122,15 @@ print.perryTuning <- print.summary.perryTuning <- function(x, best = TRUE, ...) 
 getPrefix <- function(x) UseMethod("getPrefix")
 
 getPrefix.cvFolds <- function(x) {
-    if(x$n == x$K) {
-        prefix <- "Leave-one-out CV"
-    } else prefix <- sprintf("%d-fold CV", x$K)
+    if(x$n == x$K) "Leave-one-out CV"
+    else sprintf("%d-fold CV", x$K)
 }
 
 getPrefix.randomSplits <- function(x) "Random splitting"
 
 getPrefix.bootSamples <- function(x) {
-    if(x$type == "out-of-bag") {
-        prefix <- "Out-of-bag bootstrap"
-    } else prefix <- sprintf("%s bootstrap", x$type)
+    if(x$type == "out-of-bag") "Out-of-bag bootstrap"
+    else sprintf("%s bootstrap", x$type)
 }
 
 getPrefix.default <- function(x) "Prediction error"
