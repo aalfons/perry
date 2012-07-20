@@ -42,6 +42,14 @@
   for any model for which a \code{\link{perry}} method is
   available.
 }
+\examples{
+# load data and fit an LS regression model
+data("mtcars")
+fit <- lm(mpg ~ wt + cyl, data=mtcars)
+
+# perform random splitting
+repRS(fit, m = 6, R = 10, seed = 1234)
+}
 \author{
   Andreas Alfons
 }

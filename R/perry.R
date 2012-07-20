@@ -78,6 +78,8 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{repCV}}, \code{\link{repRS}}, 
 #' \code{\link{bootPE}}
 #' 
+#' @example inst/doc/examples/example-perry.R
+#' 
 #' @keywords utilities
 #' 
 #' @export
@@ -230,6 +232,8 @@ perry.lts <- function(object, splits = foldControl(),
 #' 
 #' @seealso \code{\link{perry}}, \code{\link{repRS}}, \code{\link{bootPE}}
 #' 
+#' @example inst/doc/examples/example-repCV.R
+#' 
 #' @keywords utilities
 #' 
 #' @export
@@ -273,6 +277,8 @@ repCV <- function(object, K = 5, R = 1,
 #' 
 #' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{bootPE}}
 #' 
+#' @example inst/doc/examples/example-repRS.R
+#' 
 #' @keywords utilities
 #' 
 #' @export
@@ -310,6 +316,8 @@ repRS <- function(object, m, R = 1, grouping = NULL, splits = NULL, ...) {
 #' @author Andreas Alfons
 #' 
 #' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{repRS}}
+#' 
+#' @example inst/doc/examples/example-bootPE.R
 #' 
 #' @keywords utilities
 #' 

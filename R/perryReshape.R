@@ -53,7 +53,7 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
 #' \code{\link{perryTuning}}
 #' 
-## @example inst/doc/examples/example-perryReshape.R
+#' @example inst/doc/examples/example-perryReshape.R
 #' 
 #' @keywords utilities
 #' 

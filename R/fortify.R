@@ -50,7 +50,7 @@
 #' @seealso \code{\link[ggplot2]{fortify}}, \code{\link{perryPlot}}, 
 #' \code{\link{perryFit}}, \code{\link{perrySelect}}, \code{\link{perryTuning}}
 #' 
-## @example inst/doc/examples/example-fortify.R
+#' @example inst/doc/examples/example-fortify.R
 #' 
 #' @keywords utilities
 #' 

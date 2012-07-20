@@ -23,7 +23,7 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
 #' \code{\link{perryTuning}}, \code{\link{summary}}
 #' 
-## @example inst/doc/examples/example-summary.R
+#' @example inst/doc/examples/example-summary.R
 #' 
 #' @keywords utilities
 #' 

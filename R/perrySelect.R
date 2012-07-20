@@ -89,7 +89,7 @@
 #' 
 #' @seealso \code{\link{perryFit}}, \code{\link{perryTuning}}
 #' 
-## @example inst/doc/examples/example-perrySelect.R
+#' @example inst/doc/examples/example-perrySelect.R
 #' 
 #' @keywords utilities
 #' 
@@ -112,7 +112,8 @@ perrySelect <- function(..., .list = list(...), .reshape = FALSE,
     isPerrySelect <- isPerrySelect[keep]
     # check if the same response has been used
     y <- unique(lapply(.list, "[[", "y"))
-    if(length(y) > 1) 
+    if(length(y) > 1) y <- unique(lapply(y, unname))
+    if(length(y) > 1)
         stop("all objects must be computed with the same response")
     else y <- y[[1]]
     # check if the same data splits have been used
@@ -164,7 +165,13 @@ perrySelect <- function(..., .list = list(...), .reshape = FALSE,
     ## select optimal tuning parameters
     best <- selectBest(pe$pe, pe$se, method=.selectBest, seFactor=.seFactor)
     ## combine predictions
-    yHat <- unlist(lapply(.list, "[[", "yHat"), recursive=FALSE)
+    yHat <- lapply(.list, "[[", "yHat")
+    if(any(isPerrySelect)) {
+        # predictions from "perrySelect" objects need to be unlisted and 
+        # combined with predictions from "perry" objects in the correct order
+        yHat <- c(unlist(yHat[isPerrySelect], recursive=FALSE), 
+            yHat[!isPerrySelect])[fits]
+    }
     ## construct return object
     pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best)
     class(pe) <- "perrySelect"

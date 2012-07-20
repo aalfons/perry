@@ -37,7 +37,7 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
 #' \code{\link{perryTuning}}, \code{\link[stats]{aggregate}}
 #' 
-## @example inst/doc/examples/example-aggregate.R
+#' @example inst/doc/examples/example-aggregate.R
 #' 
 #' @keywords utilities
 #' 

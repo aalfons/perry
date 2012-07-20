@@ -27,7 +27,7 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
 #' \code{\link{perryTuning}}, \code{\link{subset}}
 #' 
-## @example inst/doc/examples/example-subset.R
+#' @example inst/doc/examples/example-subset.R
 #' 
 #' @keywords utilities
 #' 

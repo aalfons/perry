@@ -60,7 +60,7 @@
 #' \code{\link{perryTuning}}, \code{\link[ggplot2]{ggplot}}, 
 #' \code{\link[ggplot2]{autoplot}}, \code{\link[graphics]{plot}}
 #' 
-## @example inst/doc/examples/example-plot.R
+#' @example inst/doc/examples/example-perryPlot.R
 #' 
 #' @keywords hplot
 #' 
