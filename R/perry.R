@@ -3,11 +3,93 @@
 #         KU Leuven
 # ----------------------
 
+#' Resampling-based prediction error for fitted models
+#' 
+#' Estimate the prediction error of a fitted model via (repeated) \eqn{K}-fold 
+#' cross-validation, (repeated) random splitting (also known as random 
+#' subsampling or Monte Carlo cross-validation), or the bootstrap.  Methods are 
+#' available for least squares fits computed with \code{\link[stats]{lm}} as 
+#' well as for the following robust alternatives: MM-type models computed with 
+#' \code{\link[robustbase]{lmrob}} and least trimmed squares fits computed with 
+#' \code{\link[robustbase]{ltsReg}}.
+#' 
+#' @param object  the fitted model for which to estimate the prediction error.
+#' @param splits  an object of class \code{"cvFolds"} (as returned by 
+#' \code{\link{cvFolds}}) or a control object of class \code{"foldControl"} 
+#' (see \code{\link{foldControl}}) defining the folds of the data for 
+#' (repeated) \eqn{K}-fold cross-validation, an object of class 
+#' \code{"randomSplits"} (as returned by \code{\link{randomSplits}}) or a 
+#' control object of class \code{"splitControl"} (see 
+#' \code{\link{splitControl}}) defining random data splits, or an object of 
+#' class \code{"bootSamples"} (as returned by \code{\link{bootSamples}}) or a 
+#' control object of class \code{"bootControl"} (see \code{\link{bootControl}}) 
+#' defining bootstrap samples.
+#' @param fit  a character string specifying for which fit to estimate the 
+#' prediction error.  Possible values are \code{"reweighted"} (the default) for 
+#' the prediction error of the reweighted fit, \code{"raw"} for the prediction 
+#' error of the raw fit, or \code{"both"} for the prediction error of both 
+#' fits.
+#' @param cost  a cost function measuring prediction loss.  It should expect 
+#' the observed values of the response to be passed as the first argument and 
+#' the predicted values as the second argument, and must return either a 
+#' non-negative scalar value, or a list with the first component containing 
+#' the prediction error and the second component containing the standard 
+#' error.  The default is to use the root mean squared prediction error 
+#' for the \code{"lm"} method and the root trimmed mean squared prediction 
+#' error for the \code{"lmrob"} and \code{"lts"} methods (see 
+#' \code{\link{cost}}).
+#' @param seed  optional initial seed for the random number generator (see 
+#' \code{\link{.Random.seed}}).
+#' @param \dots  for the generic function, additional arguments to be passed 
+#' down to methods.  For the methods,  additional arguments to be passed to the 
+#' prediction loss function \code{cost}.
+#' 
+#' @returnClass perry
+#' @returnItem pe  a numeric vector containing the estimated prediction 
+#' errors.  For the \code{"lm"} and \code{"lmrob"} methods, this is a single 
+#' numeric value.  For the \code{"lts"} method, this contains one value for 
+#' each of the requested fits.  In case of more than one replication, those are 
+#' average values over all replications.
+#' @returnItem se  a numeric vector containing the estimated standard 
+#' errors of the prediction loss.  For the \code{"lm"} and \code{"lmrob"} 
+#' methods, this is a single numeric value.  For the \code{"lts"} method, this 
+#' contains one value for each of the requested fits.
+#' @returnItem reps  a numeric matrix containing the estimated prediction 
+#' errors from all replications.  For the \code{"lm"} and \code{"lmrob"} 
+#' methods, this is a matrix with one column.  For the \code{"lts"} method, 
+#' this contains one column for each of the requested fits.  However, this is 
+#' only returned in case of more than one replication.
+#' @returnItem splits  an object giving the data splits used to estimate the 
+#' prediction error.
+#' @returnItem y  the response.
+#' @returnItem yHat  a list containing the predicted values from all 
+#' replications.
+#' @returnItem seed  the seed of the random number generator before estimation 
+#' of the prediction error.
+#' @returnItem call  the matched function call.
+#' 
+#' @note The \code{perry} methods extract the data from the fitted model and 
+#' call \code{\link{perryFit}} to perform resampling-based prediction error 
+#' estimation.  Users may prefer the wrapper functions \code{\link{repCV}}, 
+#' \code{\link{repRS}} and \code{\link{bootPE}}.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perryFit}}, \code{\link{repCV}}, \code{\link{repRS}}, 
+#' \code{\link{bootPE}}
+#' 
+#' @keywords utilities
+#' 
 #' @export
+
 perry <- function(object, ...) UseMethod("perry")
 
+
 ## LS regression 
-#' @S3method perry lm
+#' @rdname perry
+#' @method perry lm
+#' @export
+
 perry.lm <- function(object, splits = foldControl(), cost = rmspe, 
         seed = NULL, ...) {
     ## initializations
@@ -37,8 +119,12 @@ perry.lm <- function(object, splits = foldControl(), cost = rmspe,
     out
 }
 
+
 ## MM and SDMD regression
-#' @S3method perry lmrob
+#' @rdname perry
+#' @method perry lmrob
+#' @export
+
 perry.lmrob <- function(object, splits = foldControl(), cost = rtmspe, 
         seed = NULL, ...) {
     ## initializations
@@ -68,8 +154,12 @@ perry.lmrob <- function(object, splits = foldControl(), cost = rtmspe,
     out
 }
 
+
 ## LTS regression
-#' @S3method perry lts
+#' @rdname perry
+#' @method perry lts
+#' @export
+
 perry.lts <- function(object, splits = foldControl(), 
         fit = c("reweighted", "raw", "both"), cost = rtmspe, 
         seed = NULL, ...) {
@@ -107,39 +197,129 @@ perry.lts <- function(object, splits = foldControl(),
 }
 
 
-## wrapper functions
-
-## (repeated) K-fold cross validation
+#' (Repeated) cross-validation for fitted models
+#' 
+#' Estimate the prediction error of a fitted model via (repeated) \eqn{K}-fold 
+#' cross-validation.  This works for any model for which a \code{\link{perry}} 
+#' method is available.
+#' 
+#' @param object  the fitted model for which to estimate the prediction error.
+#' @param K  an integer giving the number of folds into which the observations 
+#' should be split (the default is five).  Setting \code{K} equal to the number 
+#' of observations or groups yields leave-one-out cross-validation.
+#' @param R  an integer giving the number of replications for repeated 
+#' \eqn{K}-fold cross-validation.  This is ignored for for leave-one-out 
+#' cross-validation and other non-random splits of the data.
+#' @param foldType  a character string specifying the type of folds to be 
+#' generated.  Possible values are \code{"random"} (the default), 
+#' \code{"consecutive"} or \code{"interleaved"}.
+#' @param grouping  a factor specifying groups of observations.  If supplied, 
+#' the data are split according to the groups rather than individual 
+#' observations such that all observations within a group belong to the same 
+#' fold.
+#' @param folds  an object of class \code{"cvFolds"} (as returned by 
+#' \code{\link{cvFolds}}) or a control object of class \code{"foldControl"} 
+#' (see \code{\link{foldControl}}) defining the folds of the data for 
+#' (repeated) \eqn{K}-fold cross-validation.  If supplied, this is preferred 
+#' over the arguments for generating cross-validation folds.
+#' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
+#' 
+#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perry}}, \code{\link{repRS}}, \code{\link{bootPE}}
+#' 
+#' @keywords utilities
+#' 
 #' @export
+
 repCV <- function(object, K = 5, R = 1, 
         foldType = c("random", "consecutive", "interleaved"), 
-        grouping = NULL, folds = NULL, cost = rmspe, ...) {
+        grouping = NULL, folds = NULL, ...) {
     ## initializations
-    if(is.null(folds)) {
+    if(is.null(folds)) 
         folds <- foldControl(K, R, type=foldType, grouping=grouping)
-    }
     ## call function perry() to estimate the prediction error
-    perry(object, splits=folds, cost=cost, ...)
+    perry(object, splits=folds, ...)
 }
 
-## repeated random splitting
+
+#' (Repeated) random splitting for fitted models
+#' 
+#' Estimate the prediction error of a fitted model via (repeated) random 
+#' splitting (also known as random subsampling or Monte Carlo 
+#' cross-validation).  This works for any model for which a 
+#' \code{\link{perry}} method is available.
+#' 
+#' @param object  the fitted model for which to estimate the prediction error.
+#' @param m  an integer giving the number of observations or groups of 
+#' observations to be used as test data.
+#' @param R  an integer giving the number of random data splits.
+#' @param grouping  a factor specifying groups of observations.  If supplied, 
+#' the data are split according to the groups rather than individual 
+#' observations such that all observations within a group belong either to the 
+#' training or test data.
+#' @param splits  an object of class \code{"randomSplits"} (as returned by 
+#' \code{\link{randomSplits}}) or a control object of class 
+#' \code{"splitControl"} (see \code{\link{splitControl}}) defining random data 
+#' splits.  If supplied, this is preferred over the arguments for generating 
+#' random data splits.
+#' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
+#' 
+#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{bootPE}}
+#' 
+#' @keywords utilities
+#' 
 #' @export
-repRS <- function(object, m, R = 1, grouping = NULL, 
-        splits = NULL, cost = rmspe, ...) {
+
+repRS <- function(object, m, R = 1, grouping = NULL, splits = NULL, ...) {
     ## initializations
     if(is.null(splits)) splits <- splitControl(m, R, grouping=grouping)
     ## call function perry() to estimate the prediction error
-    perry(object, splits=splits, cost=cost, ...)
+    perry(object, splits=splits, ...)
 }
 
-## bootstrap
+
+#' Bootstrap prediction error estimation for fitted models
+#' 
+#' Estimate the prediction error of a fitted model via the bootstrap.  This 
+#' works for any model for which a \code{\link{perry}} method is available.
+#' 
+#' @param object  the fitted model for which to estimate the prediction error.
+#' @param R  an integer giving the number of bootstrap samples.
+#' @param bootType  a character string specifying a bootstrap 
+#' estimator.  Possible values are \code{"0.632"} (the default), 
+#' or \code{"out-of-bag"}.
+#' @param grouping  a factor specifying groups of observations.  If supplied, 
+#' the groups are resampled rather than individual observations such that all 
+#' observations within a group belong either to the bootstrap sample or the 
+#' test data.
+#' @param samples  an object of class \code{"bootSamples"} (as returned by 
+#' \code{\link{bootSamples}}) or a control object of class \code{"bootControl"} 
+#' (see \code{\link{bootControl}}) defining bootstrap samples.  If supplied, 
+#' this is preferred over the arguments for generating bootstrap samples.
+#' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
+#' 
+#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
+#' 
+#' @author Andreas Alfons
+#' 
+#' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{repRS}}
+#' 
+#' @keywords utilities
+#' 
 #' @export
-bootPE <- function(object, R = 1, peType = c("0.632", "out-of-bag"), 
-        grouping = NULL, samples = NULL, cost = rmspe, ...) {
+
+bootPE <- function(object, R = 1, bootType = c("0.632", "out-of-bag"), 
+        grouping = NULL, samples = NULL, ...) {
     ## initializations
-    if(is.null(samples)) {
-        samples <- bootControl(R, type=peType, grouping=grouping)
-    }
+    if(is.null(samples)) 
+        samples <- bootControl(R, type=bootType, grouping=grouping)
     ## call function perry() to estimate the prediction error
-    perry(object, splits=samples, cost=cost, ...)
+    perry(object, splits=samples, ...)
 }
