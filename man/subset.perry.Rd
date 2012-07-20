@@ -30,6 +30,11 @@
   Extract subsets of resampling-based prediction error
   results.
 }
+\note{
+  Duplicate indices in \code{subset} or \code{select} are
+  removed such that all models and prediction error results
+  are unique.
+}
 \author{
   Andreas Alfons
 }

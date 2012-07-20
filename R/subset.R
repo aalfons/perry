@@ -19,6 +19,9 @@
 #' 
 #' @return An object similar to \code{x} containing just the selected results.
 #' 
+#' @note Duplicate indices in \code{subset} or \code{select} are removed such 
+#' that all models and prediction error results are unique.
+#' 
 #' @author Andreas Alfons
 #' 
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 

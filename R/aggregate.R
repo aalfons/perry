@@ -29,6 +29,9 @@
 #' \code{"perryTuning"} method, the data frame contains the combinations of 
 #' tuning parameters rather than a column describing the models.
 #' 
+#' @note Duplicate indices in \code{subset} or \code{select} are removed such 
+#' that all models and prediction error results are unique.
+#' 
 #' @author Andreas Alfons
 #' 
 #' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 

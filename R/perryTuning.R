@@ -289,32 +289,3 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
     class(pe) <- c("perryTuning", "perrySelect")
     pe
 }
-
-
-#' @rdname perryTuning
-#' @method perryTuning perryTuning
-#' @export
-
-perryTuning.perryTuning <- function(object, cost = rmspe, 
-        costArgs = list(), ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("perryTuning")
-    if(npe(object) == 0 || isTRUE(nfits(object) == 0)) stop("empty object")
-    peNames <- peNames(object)  # names before re-estimating the prediction loss
-    ## re-estimate the prediction loss for each combination of tuning parameters
-    pe <- lapply(object$yHat, 
-        function(yHat, splits, y) {
-            perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
-        }, splits=object$splits, y=object$y)
-    pe <- combineResults(pe, fits=fits(object))
-    ## select optimal tuning parameters
-    best <- selectBest(pe$pe, pe$se, method=object$selectBest, 
-        seFactor=object$seFactor)
-    ## construct return object
-    object[names(pe)] <- pe
-    object[names(best)] <- best
-    object$call <- matchedCall
-    peNames(object) <- peNames  # make sure the names are the same as before
-    object
-}

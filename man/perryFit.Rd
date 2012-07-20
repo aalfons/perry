@@ -3,7 +3,6 @@
 \alias{perryFit.call}
 \alias{perryFit.default}
 \alias{perryFit.function}
-\alias{perryFit.perry}
 \alias{print.perry}
 \title{Resampling-based prediction error for model evaluation}
 \usage{
@@ -25,9 +24,6 @@
     y, splits = foldControl(), predictFun = predict,
     predictArgs = list(), cost = rmspe, costArgs = list(),
     names = NULL, envir = parent.frame(), seed = NULL, ...)
-
-  \method{perryFit}{perry} (object, cost = rmspe,
-    costArgs = list(), ...)
 }
 \arguments{
   \item{object}{the fitted model for which to estimate the

@@ -275,24 +275,3 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
     class(pe) <- "perry"
     pe
 }
-
-
-#' @rdname perryFit
-#' @method perryFit perry
-#' @export
-
-perryFit.perry <- function(object, cost = rmspe, costArgs = list(), ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("perryFit")
-    if(npe(object) == 0) stop("empty object")
-    peNames <- peNames(object)  # names before recomputing the prediction loss
-    ## call workhorse function to estimate the prediction loss
-    pe <- perryCost(object$splits, object$y, object$yHat, 
-        cost=cost, costArgs=costArgs)
-    ## construct return object
-    object[names(pe)] <- pe
-    object$call <- matchedCall
-    peNames(object) <- peNames  # make sure the names are the same as before
-    object
-}

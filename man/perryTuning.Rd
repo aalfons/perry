@@ -2,7 +2,6 @@
 \alias{perryTuning}
 \alias{perryTuning.call}
 \alias{perryTuning.function}
-\alias{perryTuning.perryTuning}
 \alias{print.perryTuning}
 \title{Resampling-based prediction error for tuning parameter selection}
 \usage{
@@ -22,9 +21,6 @@
     cost = rmspe, costArgs = list(),
     selectBest = c("min", "hastie"), seFactor = 1,
     names = NULL, envir = parent.frame(), seed = NULL, ...)
-
-  \method{perryTuning}{perryTuning} (object, cost = rmspe,
-    costArgs = list(), ...)
 }
 \arguments{
   \item{object}{a function or an unevaluated function call

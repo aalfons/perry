@@ -42,6 +42,9 @@
 #' @returnItem Upper  the upper end points of the error bars (only returned if 
 #' \code{reps} is \code{FALSE}). 
 #' 
+#' @note Duplicate indices in \code{subset} or \code{select} are removed such 
+#' that all models and prediction error results are unique.
+#' 
 #' @author Andreas Alfons
 #' 
 #' @seealso \code{\link[ggplot2]{fortify}}, \code{\link{perryPlot}}, 
