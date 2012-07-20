@@ -30,6 +30,8 @@
 #' @seealso \code{\link{perryFit}}, \code{\link{perryTuning}}, 
 #' \code{\link{perrySelect}}
 #' 
+#' @example inst/doc/examples/example-reperry.R
+#' 
 #' @keywords utilities
 #' 
 #' @export
