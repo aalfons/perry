@@ -15,6 +15,11 @@ yy <- cbind(y1=y, y2=y+rnorm(n))
 x <- as.matrix(x)
 xy <- data.frame(x, y)
 
+## set up cross-validation folds
+K <- 5
+R <- 1
+folds <- cvFolds(n, K, R)
+
 ## fit univariate models via lmrob() and lts()
 lmrobFit <- lmrob(y~x, data=xy)
 ltsFit <- ltsReg(x, y, alpha=0.75)
@@ -22,11 +27,6 @@ ltsFit$call[[1]] <- as.name("ltsReg")
 
 ## fit multivariate model via lm()
 lmFit <- lm(yy~x)
-
-## set up cross-validation folds
-K <- 5
-R <- 1
-folds <- cvFolds(n, K, R)
 
 
 ## run tests

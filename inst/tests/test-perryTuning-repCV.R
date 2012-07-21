@@ -14,6 +14,11 @@ y <- x + rnorm(n)
 x <- as.matrix(x)
 xy <- data.frame(x, y)
 
+## set up cross-validation folds
+K <- 5
+R <- 2
+folds <- cvFolds(n, K, R)
+
 ## set up function call to lmrob() and lts()
 lmrobCall <- call("lmrob", formula = y~x)
 ltsCall <- call("ltsReg", alpha=0.75)
@@ -23,11 +28,6 @@ tuning.psi <- c(3.443689, 4.685061)
 lmrobTuning <- list(tuning.psi = tuning.psi)
 alpha <- c(0.5, 0.75)
 ltsTuning <- list(alpha=alpha)
-
-## set up cross-validation folds
-K <- 5
-R <- 2
-folds <- cvFolds(n, K, R)
 
 
 ## run tests
