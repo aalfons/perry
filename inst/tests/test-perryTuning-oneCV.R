@@ -32,24 +32,56 @@ folds <- cvFolds(n, K, R)
 
 ## run tests
 
-test_that("returned object has class \"perryTuning\" and correct dimensions", {
+test_that("univariate response yields correct \"perryTuning\" object", {
         ## MM-regression
         lmrobCV <- perryTuning(lmrobCall, data=xy, y=xy$y, tuning=lmrobTuning, 
             splits=folds, cost=rtmspe)
         
         expect_is(lmrobCV, "perryTuning")
-        lmrobRTMSPE <- lmrobCV$pe
-        expect_is(lmrobRTMSPE, "data.frame")
-        expect_equal(dim(lmrobRTMSPE), c(length(tuning.psi), 2))
+        # check prediction error
+        lmrobPE <- lmrobCV$pe
+        expect_is(lmrobPE, "data.frame")
+        expect_equal(dim(lmrobPE), c(length(tuning.psi), 2))
+        # check that standard error is NA
+        lmrobSE <- lmrobCV$se
+        expect_is(lmrobSE, "data.frame")
+        expect_equal(dim(lmrobSE), c(length(tuning.psi), 2))
+        expect_true(all(is.na(lmrobSE[, -1])))
+        # check that there are no replications
+        expect_equal(lmrobCV$reps, NULL)
+        # check predictions
+        lmrobYHat <- lmrobCV$yHat
+        expect_is(lmrobYHat, "list")
+        expect_equal(length(lmrobYHat), length(tuning.psi))
+        for(yHat in lmrobYHat) {
+            expect_is(yHat, "list")
+            expect_equal(length(yHat), R)
+        }
         
         ## reweighted and raw LTS
         ltsCV <- perryTuning(ltsCall, x=x, y=y, tuning=ltsTuning, 
             predictArgs=list(fit="both"), splits=folds)
         
         expect_is(ltsCV, "perryTuning")
-        ltsRTMSPE <- ltsCV$pe
-        expect_is(ltsRTMSPE, "data.frame")
-        expect_equal(dim(ltsRTMSPE), c(length(alpha), 3))
+        # check prediction error
+        ltsPE <- ltsCV$pe
+        expect_is(ltsPE, "data.frame")
+        expect_equal(dim(ltsPE), c(length(alpha), 3))
+        # check that standard error is NA
+        ltsSE <- ltsCV$se
+        expect_is(ltsSE, "data.frame")
+        expect_equal(dim(ltsSE), c(length(alpha), 3))
+        expect_true(all(is.na(ltsSE[, -1])))
+        # check that there are no replications
+        expect_equal(ltsCV$reps, NULL)
+        # check predictions
+        ltsYHat <- ltsCV$yHat
+        expect_is(ltsYHat, "list")
+        expect_equal(length(ltsYHat), length(tuning.psi))
+        for(yHat in ltsYHat) {
+            expect_is(yHat, "list")
+            expect_equal(length(yHat), R)
+        }
     })
 
 test_that("including standard error gives correct data frame", {
@@ -58,6 +90,7 @@ test_that("including standard error gives correct data frame", {
             splits=folds, cost=rtmspe, costArgs=list(includeSE=TRUE))
         
         expect_is(lmrobCV, "perryTuning")
+        # check standard error
         lmrobSE <- lmrobCV$se
         expect_is(lmrobSE, "data.frame")
         expect_equal(dim(lmrobSE), c(length(tuning.psi), 2))
@@ -69,6 +102,7 @@ test_that("including standard error gives correct data frame", {
             costArgs=list(includeSE=TRUE))
         
         expect_is(ltsCV, "perryTuning")
+        # check standard error
         ltsSE <- ltsCV$se
         expect_is(ltsSE, "data.frame")
         expect_equal(dim(ltsSE), c(length(alpha), 3))

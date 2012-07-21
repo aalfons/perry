@@ -32,30 +32,58 @@ folds <- cvFolds(n, K, R)
 
 ## run tests
 
-test_that("returned object has class \"perryTuning\" and correct dimensions", {
+test_that("univariate response yields correct \"perryTuning\" object", {
         ## MM-regression
         lmrobCV <- perryTuning(lmrobCall, data=xy, y=xy$y, tuning=lmrobTuning, 
             splits=folds, cost=rtmspe)
         
         expect_is(lmrobCV, "perryTuning")
-        lmrobRTMSPE <- lmrobCV$pe
-        expect_is(lmrobRTMSPE, "data.frame")
-        expect_equal(dim(lmrobRTMSPE), c(length(tuning.psi), 2))
+        # check prediction error
+        lmrobPE <- lmrobCV$pe
+        expect_is(lmrobPE, "data.frame")
+        expect_equal(dim(lmrobPE), c(length(tuning.psi), 2))
+        # check standard error
         lmrobSE <- lmrobCV$se
         expect_is(lmrobSE, "data.frame")
         expect_equal(dim(lmrobSE), c(length(tuning.psi), 2))
         expect_false(any(is.na(lmrobSE)))
+        # check replications
+        lmrobReps <- lmrobCV$reps
+        expect_is(lmrobReps, "data.frame")
+        expect_equal(dim(lmrobReps), c(length(tuning.psi)*R, 2))
+        # check predictions
+        lmrobYHat <- lmrobCV$yHat
+        expect_is(lmrobYHat, "list")
+        expect_equal(length(lmrobYHat), length(tuning.psi))
+        for(yHat in lmrobYHat) {
+            expect_is(yHat, "list")
+            expect_equal(length(yHat), R)
+        }
         
         ## reweighted and raw LTS
         ltsCV <- perryTuning(ltsCall, x=x, y=y, tuning=ltsTuning, splits=folds, 
             predictArgs=list(fit="both"), cost=rtmspe)
         
         expect_is(ltsCV, "perryTuning")
-        ltsRTMSPE <- ltsCV$pe
-        expect_is(ltsRTMSPE, "data.frame")
-        expect_equal(dim(ltsRTMSPE), c(length(alpha), 3))
+        # check prediction error
+        ltsPE <- ltsCV$pe
+        expect_is(ltsPE, "data.frame")
+        expect_equal(dim(ltsPE), c(length(alpha), 3))
+        # check standard error
         ltsSE <- ltsCV$se
         expect_is(ltsSE, "data.frame")
         expect_equal(dim(ltsSE), c(length(alpha), 3))
         expect_false(any(is.na(ltsSE)))
+        # check replications
+        ltsReps <- ltsCV$reps
+        expect_is(ltsReps, "data.frame")
+        expect_equal(dim(ltsReps), c(length(tuning.psi)*R, 3))
+        # check predictions
+        ltsYHat <- ltsCV$yHat
+        expect_is(ltsYHat, "list")
+        expect_equal(length(ltsYHat), length(tuning.psi))
+        for(yHat in ltsYHat) {
+            expect_is(yHat, "list")
+            expect_equal(length(yHat), R)
+        }
     })
