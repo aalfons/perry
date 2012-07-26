@@ -154,7 +154,11 @@ perryCost.default <- function(splits, y, yHat, cost, costArgs = list()) {
         # keep standard error if returned by prediction loss function, 
         # otherwise set it to NA
         pe <- fun(r=1, keepSE=!boot0.632)
-        if(!is.list(pe)) pe <- list(pe=pe, se=rep.int(NA, length(pe)))
+        if(!is.list(pe)) {
+            se <- rep.int(NA, length(pe))
+            names(se) <- names(pe)
+            pe <- list(pe=pe, se=se)
+        }
         pe <- addNames(pe)
     } else {
         # discard standard error if returned by prediction loss function and 
