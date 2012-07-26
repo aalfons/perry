@@ -191,7 +191,7 @@ densityPlot <- function(data, mapping, facets = attr(data, "facets"),
         else mapping <- aes_string(x="PE")
     }
     # define default axis label
-    if(is.null(ylab)) ylab <- "Prediction error"
+    if(is.null(xlab)) xlab <- "Prediction error"
     # generate plot
     p <- ggplot(data, mapping) + geom_density(...) + 
         opts(title=main) + labs(x=xlab, y=ylab)
