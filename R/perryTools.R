@@ -16,20 +16,6 @@ perryPredictions <- function(call, data = NULL, x = NULL, y, splits,
 perryPredictions.default <- function(call, data = NULL, x = NULL, y, 
         splits, predictFun = predict, predictArgs = list(), names = NULL, 
         envir = parent.frame(), ncores = 1, cl = NULL) {
-    # define an expression that obtains predictions in one replication
-    if(is.null(data)) {
-        if(is.null(names)) names <- c("x", "y")
-        if(inherits(splits, "cvFolds")) fun <- cvXY
-        else if (inherits(splits, "randomSplits")) fun <- rsXY
-        else if(inherits(splits, "bootSamples")) fun <- bootXY
-        else stop("invalid data splits")
-    } else {
-        if(is.null(names)) names <- "data"
-        if(inherits(splits, "cvFolds")) fun <- cvData
-        else if (inherits(splits, "randomSplits")) fun <- rsData
-        else if(inherits(splits, "bootSamples")) fun <- bootData
-        else stop("invalid data splits")
-    }
     # set up parallel computing if requested
     R <- splits$R
     if(is.na(ncores)) ncores <- detectCores()  # use all available cores
@@ -37,7 +23,8 @@ perryPredictions.default <- function(call, data = NULL, x = NULL, y,
         ncores <- 1  # use default value
         warning("invalid value of 'ncores'; using default value")
     } else ncores <- as.integer(ncores)
-    ncores <- min(ncores, R)
+    if(inherits(splits, "cvFolds") && R == 1) ncores <- min(ncores, splits$K)
+    else ncores <- min(ncores, R)
     # check whether parallel computing should be used
     haveNcores <- ncores > 1
     haveCl <- !is.null(cl)
@@ -49,14 +36,40 @@ perryPredictions.default <- function(call, data = NULL, x = NULL, y,
         } else cl <- makeForkCluster(ncores)
         on.exit(stopCluster(cl))
     }
+    # define an expression that obtains predictions in one replication
+    if(is.null(data)) {
+        if(is.null(names)) names <- c("x", "y")
+        if(inherits(splits, "cvFolds")) 
+            fun <- if(useParallel && R == 1) pcvXY else cvXY
+        else if(inherits(splits, "randomSplits")) fun <- rsXY
+        else if(inherits(splits, "bootSamples")) fun <- bootXY
+        else stop("invalid data splits")
+    } else {
+        if(is.null(names)) names <- "data"
+        if(inherits(splits, "cvFolds")) 
+            fun <- if(useParallel && R == 1) pcvData else cvData
+        else if(inherits(splits, "randomSplits")) fun <- rsData
+        else if(inherits(splits, "bootSamples")) fun <- bootData
+        else stop("invalid data splits")
+    }
     # obtain list of predictions for all replications
     if(useParallel) {
-        clusterSetRNGStream(cl)  # set seed of the random number stream
-        parLapply(cl, seq_len(R), function(r) {
-                s <- getIndices(splits, r)
-                fun(s, call=call, data=data, x=x, y=y, predictFun=predictFun, 
-                    predictArgs=predictArgs, names=names, envir=envir)
-            })
+        clusterSetRNGStream(cl)  # set the random number stream
+        if(inherits(splits, "cvFolds") && R == 1) {
+            lapply(seq_len(R), function(r) {
+                    s <- getIndices(splits, r)
+                    fun(s, call=call, data=data, x=x, y=y, 
+                        predictFun=predictFun, predictArgs=predictArgs, 
+                        names=names, envir=envir, cl=cl)
+                })
+        } else {
+            parLapply(cl, seq_len(R), function(r) {
+                    s <- getIndices(splits, r)
+                    fun(s, call=call, data=data, x=x, y=y, 
+                        predictFun=predictFun, predictArgs=predictArgs, 
+                        names=names, envir=envir)
+                })
+        }
     } else {
         lapply(seq_len(R), function(r) {
                 s <- getIndices(splits, r)
@@ -85,6 +98,32 @@ cvData <- function(folds, call, data, x, y, predictFun, predictArgs, names, envi
     # left-out block
     tmp <- lapply(folds, rsData, call=call, data=data, predictFun=predictFun, 
         predictArgs=predictArgs, names=names, envir=envir)
+    # instead of collecting the results from the folds in the original order 
+    # of the observations, they are simply stacked on top of each other
+    combineData(tmp)
+}
+
+# one replication of cross validation via parallel computing for functions that 
+# take the predictors and the response as separate arguments
+pcvXY <- function(folds, call, data, x, y, predictFun, predictArgs, names, envir, cl) {
+    # fit the model leaving each block out and obtain predictions for the 
+    # left-out block
+    tmp <- parLapply(cl, folds, rsXY, call=call, x=x, y=y, 
+        predictFun=predictFun, predictArgs=predictArgs, 
+        names=names, envir=envir)
+    # instead of collecting the results from the folds in the original order 
+    # of the observations, they are simply stacked on top of each other
+    combineData(tmp)
+}
+
+# one replication of cross validation via parallel computing for functions that 
+# that have one argument for all the data
+pcvData <- function(folds, call, data, x, y, predictFun, predictArgs, names, envir, cl) {
+    # fit the model leaving each block out and obtain predictions for the 
+    # left-out block
+    tmp <- parLapply(cl, folds, rsData, call=call, data=data, 
+        predictFun=predictFun, predictArgs=predictArgs, 
+        names=names, envir=envir)
     # instead of collecting the results from the folds in the original order 
     # of the observations, they are simply stacked on top of each other
     combineData(tmp)

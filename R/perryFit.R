@@ -263,13 +263,13 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
             # fit the model from all observations
             if(is.null(data)) {
                 if(is.null(names)) names <- c("x", "y")
-                call[[names[1]]] <- x
-                call[[names[2]]] <- y
+                object[[names[1]]] <- x
+                object[[names[2]]] <- y
             } else {
                 if(is.null(names)) names <- "data"
-                call[[names]] <- data
+                object[[names]] <- data
             }
-            fit <- eval(call, envir)
+            fit <- eval(object, envir)
             # predict the response for all observations
             if(is.null(data)) 
                 splits$yHat <- doCall(predictFun, fit, x, args=predictArgs)
