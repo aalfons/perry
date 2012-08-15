@@ -8,14 +8,14 @@
 # generic function to be extensible
 perryPredictions <- function(call, data = NULL, x = NULL, y, splits, 
         predictFun = predict, predictArgs = list(), names = NULL, 
-        envir = parent.frame()) {
+        envir = parent.frame(), ncores = 1, cl = NULL) {
     UseMethod("perryPredictions", splits)
 }
 
 # default method for built-in procedures
 perryPredictions.default <- function(call, data = NULL, x = NULL, y, 
         splits, predictFun = predict, predictArgs = list(), names = NULL, 
-        envir = parent.frame()) {
+        envir = parent.frame(), ncores = 1, cl = NULL) {
     # define an expression that obtains predictions in one replication
     if(is.null(data)) {
         if(is.null(names)) names <- c("x", "y")
@@ -30,12 +30,40 @@ perryPredictions.default <- function(call, data = NULL, x = NULL, y,
         else if(inherits(splits, "bootSamples")) fun <- bootData
         else stop("invalid data splits")
     }
+    # set up parallel computing if requested
+    R <- splits$R
+    if(is.na(ncores)) ncores <- detectCores()  # use all available cores
+    if(!is.numeric(ncores) || is.infinite(ncores) || ncores < 1) {
+        ncores <- 1  # use default value
+        warning("invalid value of 'ncores'; using default value")
+    } else ncores <- as.integer(ncores)
+    ncores <- min(ncores, R)
+    # check whether parallel computing should be used
+    haveNcores <- ncores > 1
+    haveCl <- !is.null(cl)
+    useParallel <- haveNcores || haveCl
+    # set up multicore or snow cluster if not supplied
+    if(haveNcores) {
+        if(.Platform$OS.type == "windows") {
+            cl <- makePSOCKcluster(rep.int("localhost", ncores))
+        } else cl <- makeForkCluster(ncores)
+        on.exit(stopCluster(cl))
+    }
     # obtain list of predictions for all replications
-    lapply(seq_len(splits$R), function(r) {
-            s <- getIndices(splits, r)
-            fun(s, call=call, data=data, x=x, y=y, predictFun=predictFun, 
-                predictArgs=predictArgs, names=names, envir=envir)
-        })
+    if(useParallel) {
+        clusterSetRNGStream(cl)  # set seed of the random number stream
+        parLapply(cl, seq_len(R), function(r) {
+                s <- getIndices(splits, r)
+                fun(s, call=call, data=data, x=x, y=y, predictFun=predictFun, 
+                    predictArgs=predictArgs, names=names, envir=envir)
+            })
+    } else {
+        lapply(seq_len(R), function(r) {
+                s <- getIndices(splits, r)
+                fun(s, call=call, data=data, x=x, y=y, predictFun=predictFun, 
+                    predictArgs=predictArgs, names=names, envir=envir)
+            })
+    }
 }
 
 # one replication of cross validation for functions that take the predictors 

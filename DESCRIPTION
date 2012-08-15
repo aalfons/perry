@@ -8,6 +8,7 @@ Maintainer: Andreas Alfons <andreas.alfons@kuleuven.be>
 Depends:
     R (>= 2.11.0),
     ggplot2,
+    parallel,
     robustbase
 Imports:
     stats
