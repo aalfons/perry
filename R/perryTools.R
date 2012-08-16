@@ -8,34 +8,17 @@
 # generic function to be extensible
 perryPredictions <- function(call, data = NULL, x = NULL, y, splits, 
         predictFun = predict, predictArgs = list(), names = NULL, 
-        envir = parent.frame(), ncores = 1, cl = NULL) {
+        envir = parent.frame(), cl = NULL) {
     UseMethod("perryPredictions", splits)
 }
 
 # default method for built-in procedures
 perryPredictions.default <- function(call, data = NULL, x = NULL, y, 
         splits, predictFun = predict, predictArgs = list(), names = NULL, 
-        envir = parent.frame(), ncores = 1, cl = NULL) {
-    # set up parallel computing if requested
+        envir = parent.frame(), cl = NULL) {
+    # initializations
+    useParallel <- !is.null(cl)
     R <- splits$R
-    if(is.na(ncores)) ncores <- detectCores()  # use all available cores
-    if(!is.numeric(ncores) || is.infinite(ncores) || ncores < 1) {
-        ncores <- 1  # use default value
-        warning("invalid value of 'ncores'; using default value")
-    } else ncores <- as.integer(ncores)
-    if(inherits(splits, "cvFolds") && R == 1) ncores <- min(ncores, splits$K)
-    else ncores <- min(ncores, R)
-    # check whether parallel computing should be used
-    haveNcores <- ncores > 1
-    haveCl <- !is.null(cl)
-    useParallel <- haveNcores || haveCl
-    # set up multicore or snow cluster if not supplied
-    if(haveNcores) {
-        if(.Platform$OS.type == "windows") {
-            cl <- makePSOCKcluster(rep.int("localhost", ncores))
-        } else cl <- makeForkCluster(ncores)
-        on.exit(stopCluster(cl))
-    }
     # define an expression that obtains predictions in one replication
     if(is.null(data)) {
         if(is.null(names)) names <- c("x", "y")
@@ -54,7 +37,6 @@ perryPredictions.default <- function(call, data = NULL, x = NULL, y,
     }
     # obtain list of predictions for all replications
     if(useParallel) {
-        clusterSetRNGStream(cl)  # set the random number stream
         if(inherits(splits, "cvFolds") && R == 1) {
             lapply(seq_len(R), function(r) {
                     s <- getIndices(splits, r)

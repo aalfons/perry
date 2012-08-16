@@ -3,8 +3,9 @@ Type: Package
 Title: Tools for resampling-based prediction error measures of regression models
 Version: 0.1.0
 Date: 2012-06-07
-Author: Andreas Alfons
-Maintainer: Andreas Alfons <andreas.alfons@kuleuven.be>
+Authors@R: person("Andreas", "Alfons",
+    email = "andreas.alfons@kuleuven.be",
+    role = c("aut", "cre"))
 Depends:
     R (>= 2.11.0),
     ggplot2,

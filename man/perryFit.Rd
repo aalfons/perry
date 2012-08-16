@@ -117,9 +117,9 @@
   also in case of parallel computing, resampling is
   performed on the manager process rather than the worker
   processes. On the parallel worker processes, random
-  number streams are always set for reproducibility in case
-  the model fitting function involves randomness (see
-  \code{\link{clusterSetRNGStream}}).}
+  number streams are used and the seed is set via
+  \code{\link{clusterSetRNGStream}} for reproducibility in
+  case the model fitting function involves randomness.}
 
   \item{\dots}{additional arguments to be passed down.}
 }

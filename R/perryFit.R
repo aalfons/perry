@@ -124,8 +124,8 @@
 #' \code{\link{.Random.seed}}).  Note that also in case of parallel computing, 
 #' resampling is performed on the manager process rather than the worker 
 #' processes. On the parallel worker processes, random number streams are 
-#' always set for reproducibility in case the model fitting function involves 
-#' randomness (see \code{\link{clusterSetRNGStream}}).
+#' used and the seed is set via \code{\link{clusterSetRNGStream}} for 
+#' reproducibility in case the model fitting function involves randomness.
 #' @param \dots  additional arguments to be passed down.
 #' 
 #' @returnClass perry
@@ -249,10 +249,12 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
     }
     if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
     # make sure that .Random.seed exists if no seed is supplied
-    if(is.null(seed)) {
+    haveSeed <- !is.null(seed)
+    if(haveSeed) set.seed(seed)
+    else {
         if(!exists(".Random.seed", envir=.GlobalEnv, inherits = FALSE)) runif(1)
         seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
-    } else set.seed(seed)
+    }
     ## compute data splits
     if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
     ## compute fitted values from the model using all observations for the 
@@ -276,10 +278,35 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
             else splits$yHat <- doCall(predictFun, fit, data, args=predictArgs)
         }
     }
+    # set up parallel computing if requested
+    R <- splits$R
+    if(is.na(ncores)) ncores <- detectCores()  # use all available cores
+    if(!is.numeric(ncores) || is.infinite(ncores) || ncores < 1) {
+        ncores <- 1  # use default value
+        warning("invalid value of 'ncores'; using default value")
+    } else ncores <- as.integer(ncores)
+    if(inherits(splits, "cvFolds") && R == 1) ncores <- min(ncores, splits$K)
+    else ncores <- min(ncores, R)
+    # check whether parallel computing should be used
+    haveNcores <- ncores > 1
+    haveCl <- !is.null(cl)
+    useParallel <- haveNcores || haveCl
+    # set up multicore or snow cluster if not supplied
+    if(haveNcores) {
+        if(.Platform$OS.type == "windows") {
+            cl <- makePSOCKcluster(rep.int("localhost", ncores))
+        } else cl <- makeForkCluster(ncores)
+        on.exit(stopCluster(cl))
+    }
+    if(useParallel) {
+        # set seed of the random number stream
+        if(haveSeed) clusterSetRNGStream(cl, iseed=seed)
+        else if(haveNcores) clusterSetRNGStream(cl)
+    }
     ## call workhorse function to compute the predictions
     yHat <- perryPredictions(object, data, x, y, splits=splits, 
         predictFun=predictFun, predictArgs=predictArgs, names=names, 
-        envir=envir, ncores=ncores, cl=cl)
+        envir=envir, cl=cl)
     ## call workhorse function to estimate the prediction loss
     pe <- perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
     ## construct return object
