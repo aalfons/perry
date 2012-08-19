@@ -289,8 +289,7 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
     else ncores <- min(ncores, R)
     # check whether parallel computing should be used
     haveNcores <- ncores > 1
-    haveCl <- !is.null(cl)
-    useParallel <- haveNcores || haveCl
+    useParallel <- haveNcores || !is.null(cl)
     # set up multicore or snow cluster if not supplied
     if(haveNcores) {
         if(.Platform$OS.type == "windows") {

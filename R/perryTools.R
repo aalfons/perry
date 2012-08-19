@@ -90,7 +90,9 @@ cvData <- function(folds, call, data, x, y, predictFun, predictArgs, names, envi
 pcvXY <- function(folds, call, data, x, y, predictFun, predictArgs, names, envir, cl) {
     # fit the model leaving each block out and obtain predictions for the 
     # left-out block
-    tmp <- parLapply(cl, folds, rsXY, call=call, x=x, y=y, 
+    # parLapply() already has an argument 'x', so don't use the argument names 
+    # for the data or it will throw an error
+    tmp <- parLapply(cl, folds, rsXY, call, data, x, y, 
         predictFun=predictFun, predictArgs=predictArgs, 
         names=names, envir=envir)
     # instead of collecting the results from the folds in the original order 
