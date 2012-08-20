@@ -148,9 +148,6 @@
   \item{yHat}{a list containing the predicted values from
   all replications.}
 
-  \item{seed}{the seed of the random number generator
-  before estimation of the prediction error.}
-
   \item{call}{the matched function call.}
 }
 \description{

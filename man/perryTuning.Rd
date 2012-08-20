@@ -187,9 +187,6 @@
   parameter values for which the prediction error was
   estimated.}
 
-  \item{seed}{the seed of the random number generator
-  before estimation of the prediction error.}
-
   \item{call}{the matched function call.}
 }
 \description{

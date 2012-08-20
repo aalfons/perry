@@ -142,8 +142,6 @@
 #' @returnItem y  the response.
 #' @returnItem yHat  a list containing the predicted values from all 
 #' replications.
-#' @returnItem seed  the seed of the random number generator before estimation 
-#' of the prediction error.
 #' @returnItem call  the matched function call.
 #' 
 #' @author Andreas Alfons
@@ -248,13 +246,7 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
         nx <- nobs(data)
     }
     if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
-    # make sure that .Random.seed exists if no seed is supplied
-    haveSeed <- !is.null(seed)
-    if(haveSeed) set.seed(seed)
-    else {
-        if(!exists(".Random.seed", envir=.GlobalEnv, inherits = FALSE)) runif(1)
-        seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
-    }
+    if(!is.null(seed)) set.seed(seed)
     ## compute data splits
     if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
     ## compute fitted values from the model using all observations for the 
@@ -304,7 +296,7 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
     }
     if(useParallel) {
         # set seed of the random number stream
-        if(haveSeed) clusterSetRNGStream(cl, iseed=seed)
+        if(!is.null(seed)) clusterSetRNGStream(cl, iseed=seed)
         else if(haveNcores) clusterSetRNGStream(cl)
     }
     ## call workhorse function to compute the predictions
@@ -314,8 +306,7 @@ perryFit.call <- function(object, data = NULL, x = NULL, y,
     ## call workhorse function to estimate the prediction loss
     pe <- perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
     ## construct return object
-    pe <- c(pe, list(splits=splits, y=y, yHat=yHat, 
-            seed=seed, call=matchedCall))
+    pe <- c(pe, list(splits=splits, y=y, yHat=yHat, call=matchedCall))
     class(pe) <- "perry"
     pe
 }

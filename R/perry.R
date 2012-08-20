@@ -73,8 +73,6 @@
 #' @returnItem y  the response.
 #' @returnItem yHat  a list containing the predicted values from all 
 #' replications.
-#' @returnItem seed  the seed of the random number generator before estimation 
-#' of the prediction error.
 #' @returnItem call  the matched function call.
 #' 
 #' @note The \code{perry} methods extract the data from the fitted model and 

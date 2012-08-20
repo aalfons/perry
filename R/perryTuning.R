@@ -170,8 +170,6 @@
 #' the standard error used for the selection of the best model.
 #' @returnItem tuning  a data frame containing the grid of tuning parameter 
 #' values for which the prediction error was estimated.
-#' @returnItem seed  the seed of the random number generator before estimation 
-#' of the prediction error.
 #' @returnItem call  the matched function call.
 #' 
 #' @note The same data splits are used for all combinations of tuning parameter 
@@ -269,13 +267,7 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
             cl=cl, seed=seed)
         return(out)
     }
-    # make sure that .Random.seed exists if no seed is supplied
-    haveSeed <- !is.null(seed)
-    if(haveSeed) set.seed(seed)
-    else {
-        if(!exists(".Random.seed", envir=.GlobalEnv, inherits = FALSE)) runif(1)
-        seed <- get(".Random.seed", envir=.GlobalEnv, inherits = FALSE)
-    }
+    if(!is.null(seed)) set.seed(seed)
     ## compute data splits
     if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
     # set up parallel computing if requested
@@ -309,7 +301,7 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
     tn <- names(tuning)
     if(useParallel) {
         # set seed of the random number stream
-        if(haveSeed) clusterSetRNGStream(cl, iseed=seed)
+        if(!is.null(seed)) clusterSetRNGStream(cl, iseed=seed)
         else if(haveNcores) clusterSetRNGStream(cl)
         if(nTuning == 1) {
             yHat <- lapply(fits, function(i) {
@@ -349,7 +341,7 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
     ## construct return object
     names(yHat) <- fits
     pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best, 
-        list(tuning=tuning, seed=seed, call=matchedCall))
+        list(tuning=tuning, call=matchedCall))
     class(pe) <- c("perryTuning", "perrySelect")
     pe
 }
