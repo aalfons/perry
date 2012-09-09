@@ -171,7 +171,7 @@ boxPlot <- function(data, mapping, facets = attr(data, "facets"),
     if(is.null(ylab)) ylab <- "Prediction error"
     # generate plot
     p <- ggplot(data, mapping) + geom_boxplot(...) + 
-        opts(title=main) + labs(x=xlab, y=ylab)
+        labs(title=main, x=xlab, y=ylab)
     if(!is.null(facets)) {
         # split plot into different panels
         if(length(facets) == 2) p <- p + facet_wrap(facets) 
@@ -194,7 +194,7 @@ densityPlot <- function(data, mapping, facets = attr(data, "facets"),
     if(is.null(xlab)) xlab <- "Prediction error"
     # generate plot
     p <- ggplot(data, mapping) + geom_density(...) + 
-        opts(title=main) + labs(x=xlab, y=ylab)
+        labs(title=main, x=xlab, y=ylab)
     if(is.numeric(data[, "Fit"])) 
         p <- p + scale_color_continuous(breaks=unique(data[, "Fit"]))
     if(!is.null(facets)) {
@@ -216,7 +216,7 @@ dotPlot <- function(data, mapping, facets = attr(data, "facets"),
     if(is.null(ylab)) ylab <- "Prediction error"
     # generate plot
     p <- ggplot(data, mapping) + geom_pointrange(...) + 
-        opts(title=main) + labs(x=xlab, y=ylab)
+        labs(title=main, x=xlab, y=ylab)
     if(!is.null(facets)) {
         # split plot into different panels
         if(length(facets) == 2) p <- p + facet_wrap(facets) 
@@ -236,7 +236,7 @@ linePlot <- function(data, mapping, facets = attr(data, "facets"),
     if(is.null(ylab)) ylab <- "Prediction error"
     # generate plot
     p <- ggplot(data, mapping) + geom_line(...) + geom_pointrange(...) + 
-        opts(title=main) + labs(x=xlab, y=ylab)
+        labs(title=main, x=xlab, y=ylab)
     if(!is.null(facets)) {
         # split plot into different panels
         if(length(facets) == 2) p <- p + facet_wrap(facets) 
