@@ -126,9 +126,7 @@
 \note{
   The \code{perry} methods extract the data from the fitted
   model and call \code{\link{perryFit}} to perform
-  resampling-based prediction error estimation.  Users may
-  prefer the wrapper functions \code{\link{repCV}},
-  \code{\link{repRS}} and \code{\link{bootPE}}.
+  resampling-based prediction error estimation.
 }
 \examples{
 ## load data and fit an LS regression model
@@ -154,8 +152,7 @@ perry(fit, bootControl(R = 10, type = "out-of-bag"), seed = 1234)
   Andreas Alfons
 }
 \seealso{
-  \code{\link{perryFit}}, \code{\link{repCV}},
-  \code{\link{repRS}}, \code{\link{bootPE}}
+  \code{\link{perryFit}}
 }
 \keyword{utilities}
 

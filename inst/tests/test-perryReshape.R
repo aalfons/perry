@@ -24,7 +24,7 @@ ltsFit <- ltsReg(x, y, alpha=0.75)
 ltsFit$call[[1]] <- as.name("ltsReg")
 
 ## cross-validation
-ltsCV <- repCV(ltsFit, folds=folds, fit="both", cost=rtmspe)
+ltsCV <- perry(ltsFit, splits=folds, fit="both", cost=rtmspe)
 
 
 ## run tests

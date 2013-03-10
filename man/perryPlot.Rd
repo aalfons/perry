@@ -119,17 +119,17 @@ folds <- cvFolds(nrow(coleman), K = 5, R = 10)
 
 # perform cross-validation for an LS regression model
 fitLm <- lm(Y ~ ., data = coleman)
-cvLm <- repCV(fitLm, folds = folds, 
+cvLm <- perry(fitLm, splits = folds, 
     cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an MM regression model
 fitLmrob <- lmrob(Y ~ ., data = coleman, k.max = 500)
-cvLmrob <- repCV(fitLmrob, folds = folds, 
+cvLmrob <- perry(fitLmrob, splits = folds, 
     cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an LTS regression model
 fitLts <- ltsReg(Y ~ ., data = coleman)
-cvLts <- repCV(fitLts, folds = folds, 
+cvLts <- perry(fitLts, splits = folds, 
     cost = rtmspe, trim = 0.1)
 
 # combine results into one object

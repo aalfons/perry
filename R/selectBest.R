@@ -1,7 +1,7 @@
-# ----------------------
+# ------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus University Rotterdam
+# ------------------------------------
 
 ## Model selection criteria based on prediction loss
 ## 
@@ -51,23 +51,41 @@ selectMin <- function(x) which.min(x)
 ## @rdname selectBest
 ## @export
 selectHastie <- function(x, se, seFactor = 1) {
-    i <- which.min(x)
-    within <- which(x[seq_len(i)] < (x[i] + seFactor * se[i]))
-    if(length(within) == 0) i else within[1]  # ensure it works if se[i] is NA
+  i <- which.min(x)
+  within <- which(x[seq_len(i)] < (x[i] + seFactor * se[i]))
+  if(length(within) == 0) i else within[1]  # ensure it works if se[i] is NA
 }
 
-#selectDiff <- function(x, se, seFactor = 1) {
-#    i <- which.min(x)
-#    seqI <- seq_len(i)
-#    out <- which(c(TRUE, (diff(x[seqI]) + seFactor * se[seqI[-1]]) < 0))
-#    tail(out, 1)
-#}
-#
-#selectRelChange <- function(x, se, seFactor = 1, threshold = 0.001) {
-#    # find models with large enough relative change
-#    i <- which.min(x)
-#    xSeqI <- x[seq_len(i)]
-#    keep <- which((xSeqI - x[i]) / max(xSeqI) > threshold)
-#    # call selectHastie() for the remaining models
-#    selectHastie(xSeqI[keep], se[keep], seFactor=seFactor)
-#}
+# selectDiff <- function(x, se, seFactor = 1) {
+#   i <- which.min(x)
+#   seqI <- seq_len(i)
+#   out <- which(c(TRUE, (diff(x[seqI]) + seFactor * se[seqI[-1]]) < 0))
+#   tail(out, 1)
+# }
+# 
+# selectRelChange <- function(x, se, seFactor = 1, threshold = 0.001) {
+#   # find models with large enough relative change
+#   i <- which.min(x)
+#   xSeqI <- x[seq_len(i)]
+#   keep <- which((xSeqI - x[i]) / max(xSeqI) > threshold)
+#   # call selectHastie() for the remaining models
+#   selectHastie(xSeqI[keep], se[keep], seFactor=seFactor)
+# }
+
+## select the best model
+selectBest <- function(pe, se, method = c("min", "hastie"), seFactor = NA) {
+  # initializations
+  method <- match.arg(method)
+  # find best model
+  if(method == "min") {
+    seFactor <- NA
+    best <- sapply(pe[, -1, drop=FALSE], selectMin)
+  } else {
+    seFactor <- rep(seFactor, length.out=1)
+    best <- sapply(names(pe)[-1], {
+      function(j) selectHastie(pe[, j], se[, j], seFactor=seFactor)
+    })
+  }
+  # return list
+  list(best=best, selectBest=method, seFactor=seFactor)
+}

@@ -132,23 +132,6 @@ removeIntercept <- function(x, pos) {
     } else x[, -pos, drop=FALSE]
 }
 
-# select the best model
-selectBest <- function(pe, se, method = c("min", "hastie"), seFactor = NA) {
-    # initializations
-    method <- match.arg(method)
-    # find best model
-    if(method == "min") {
-        seFactor <- NA
-        best <- sapply(pe[, -1, drop=FALSE], selectMin)
-    } else {
-        seFactor <- rep(seFactor, length.out=1)
-        best <- sapply(names(pe)[-1], 
-            function(j) selectHastie(pe[, j], se[, j], seFactor=seFactor))
-    }
-    # return list
-    list(best=best, selectBest=method, seFactor=seFactor)
-}
-
 # find which bootstrap samples have all observations in the bag
 whichAllInBag <- function(n, samples) {
     indices <- seq_len(n)

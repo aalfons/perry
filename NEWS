@@ -1,3 +1,9 @@
+Changes in perry version 0.2.0
+
+    + Wrapper functions repCV(), repRS() and bootPE() are now deprecated.
+
+
+
 Changes in perry version 0.1.1
 
     + Plots are no longer using the opts() function from package ggplot2, which 
