@@ -9,12 +9,12 @@ folds <- cvFolds(nrow(coleman), K = 5, R = 10)
 
 # 50% subsets
 fit50 <- ltsReg(Y ~ ., data = coleman, alpha = 0.5)
-cv50 <- repCV(fit50, folds = folds, fit = "both", 
+cv50 <- perry(fit50, splits = folds, fit = "both", 
     cost = rtmspe, trim = 0.25)
 
 # 75% subsets
 fit75 <- ltsReg(Y ~ ., data = coleman, alpha = 0.75)
-cv75 <- repCV(fit75, folds = folds, fit = "both", 
+cv75 <- perry(fit75, splits = folds, fit = "both", 
     cost = rtmspe, trim = 0.25)
 
 # combine results into one object

@@ -1,7 +1,7 @@
-# ----------------------
+# ------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus University Rotterdam
+# ------------------------------------
 
 #' Resampling-based prediction error for fitted models
 #' 
@@ -77,13 +77,11 @@
 #' 
 #' @note The \code{perry} methods extract the data from the fitted model and 
 #' call \code{\link{perryFit}} to perform resampling-based prediction error 
-#' estimation.  Users may prefer the wrapper functions \code{\link{repCV}}, 
-#' \code{\link{repRS}} and \code{\link{bootPE}}.
+#' estimation.
 #' 
 #' @author Andreas Alfons
 #' 
-#' @seealso \code{\link{perryFit}}, \code{\link{repCV}}, \code{\link{repRS}}, 
-#' \code{\link{bootPE}}
+#' @seealso \code{\link{perryFit}}
 #' 
 #' @example inst/doc/examples/example-perry.R
 #' 
@@ -100,33 +98,33 @@ perry <- function(object, ...) UseMethod("perry")
 #' @export
 
 perry.lm <- function(object, splits = foldControl(), cost = rmspe, 
-        ncores = 1, cl = NULL, seed = NULL, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    # retrieve data from model fit
-    if(is.null(data <- object$model)) {
-        haveDataArgument <- !is.null(object$call$data)
-        if(haveDataArgument) {
-            # try to retrieve data from 'x' and 'y' components
-            # this only works if the data argument was used to fit the model
-            if(!is.null(x <- object[["x"]]) && !is.null(y <- object$y)) {
-                x <- removeIntercept(x)
-                data <- data.frame(y, x)
-            }
-        }
-        if(!haveDataArgument || is.null(data)) {
-            # try to retrieve data from terms component
-            data <- try(model.frame(object$terms), silent=TRUE)
-            if(inherits(data, "try-error")) stop("model data not available")
-        }
+                     ncores = 1, cl = NULL, seed = NULL, ...) {
+  ## initializations
+  matchedCall <- match.call()
+  # retrieve data from model fit
+  if(is.null(data <- object$model)) {
+    haveDataArgument <- !is.null(object$call$data)
+    if(haveDataArgument) {
+      # try to retrieve data from 'x' and 'y' components
+      # this only works if the data argument was used to fit the model
+      if(!is.null(x <- object[["x"]]) && !is.null(y <- object$y)) {
+        x <- removeIntercept(x)
+        data <- data.frame(y, x)
+      }
     }
-    if(is.null(y <- object$y)) y <- model.response(data)
-    ## call function perryFit() to estimate the prediction error
-    out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
-        costArgs=list(...), envir=parent.frame(), ncores=ncores, 
-        cl=cl, seed=seed)
-    out$call <- matchedCall
-    out
+    if(!haveDataArgument || is.null(data)) {
+      # try to retrieve data from terms component
+      data <- try(model.frame(object$terms), silent=TRUE)
+      if(inherits(data, "try-error")) stop("model data not available")
+    }
+  }
+  if(is.null(y <- object$y)) y <- model.response(data)
+  ## call function perryFit() to estimate the prediction error
+  out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
+                  costArgs=list(...), envir=parent.frame(), ncores=ncores, 
+                  cl=cl, seed=seed)
+  out$call <- matchedCall
+  out
 }
 
 
@@ -136,33 +134,33 @@ perry.lm <- function(object, splits = foldControl(), cost = rmspe,
 #' @export
 
 perry.lmrob <- function(object, splits = foldControl(), cost = rtmspe, 
-        ncores = 1, cl = NULL, seed = NULL, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    # retrieve data from model fit
-    if(is.null(data <- object$model)) {
-        haveDataArgument <- !is.null(object$call$data)
-        if(haveDataArgument) {
-            # try to retrieve data from 'x' and 'y' components
-            # this only works if the data argument was used to fit the model
-            if(!is.null(x <- object[["x"]]) && !is.null(y <- object$y)) {
-                x <- removeIntercept(x)
-                data <- data.frame(y, x)
-            }
-        }
-        if(!haveDataArgument || is.null(data)) {
-            # try to retrieve data from terms component
-            data <- try(model.frame(object$terms), silent=TRUE)
-            if(inherits(data, "try-error")) stop("model data not available")
-        }
+                        ncores = 1, cl = NULL, seed = NULL, ...) {
+  ## initializations
+  matchedCall <- match.call()
+  # retrieve data from model fit
+  if(is.null(data <- object$model)) {
+    haveDataArgument <- !is.null(object$call$data)
+    if(haveDataArgument) {
+      # try to retrieve data from 'x' and 'y' components
+      # this only works if the data argument was used to fit the model
+      if(!is.null(x <- object[["x"]]) && !is.null(y <- object$y)) {
+        x <- removeIntercept(x)
+        data <- data.frame(y, x)
+      }
     }
-    if(is.null(y <- object$y)) y <- model.response(data)
-    ## call function perryFit() to estimate the prediction error
-    out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
-        costArgs=list(...), envir=parent.frame(), ncores=ncores, 
-        cl=cl, seed=seed)
-    out$call <- matchedCall
-    out
+    if(!haveDataArgument || is.null(data)) {
+      # try to retrieve data from terms component
+      data <- try(model.frame(object$terms), silent=TRUE)
+      if(inherits(data, "try-error")) stop("model data not available")
+    }
+  }
+  if(is.null(y <- object$y)) y <- model.response(data)
+  ## call function perryFit() to estimate the prediction error
+  out <- perryFit(object, data=data, y=y, splits=splits, cost=cost, 
+                  costArgs=list(...), envir=parent.frame(), ncores=ncores, 
+                  cl=cl, seed=seed)
+  out$call <- matchedCall
+  out
 }
 
 
@@ -172,172 +170,135 @@ perry.lmrob <- function(object, splits = foldControl(), cost = rtmspe,
 #' @export
 
 perry.lts <- function(object, splits = foldControl(), 
-        fit = c("reweighted", "raw", "both"), cost = rtmspe, 
-        ncores = 1, cl = NULL, seed = NULL, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    object <- object
-    if(is.null(x <- object$X) || is.null(y <- object$Y)) {
-        if(is.null(data <- object$model)) {
-            if(is.null(x)) x <- try(model.matrix(object$terms), silent=TRUE)
-            if(is.null(y)) y <- try(model.response(object$terms), silent=TRUE)
-            if(inherits(x, "try-error") || inherits(y, "try-error")) {
-                stop("model data not available")
-            }
-        } else {
-            x <- model.matrix(object$terms, data)
-            y <- model.response(data)
-        }
+                      fit = c("reweighted", "raw", "both"), cost = rtmspe, 
+                      ncores = 1, cl = NULL, seed = NULL, ...) {
+  ## initializations
+  matchedCall <- match.call()
+  object <- object
+  if(is.null(x <- object$X) || is.null(y <- object$Y)) {
+    if(is.null(data <- object$model)) {
+      if(is.null(x)) x <- try(model.matrix(object$terms), silent=TRUE)
+      if(is.null(y)) y <- try(model.response(object$terms), silent=TRUE)
+      if(inherits(x, "try-error") || inherits(y, "try-error")) {
+        stop("model data not available")
+      }
+    } else {
+      x <- model.matrix(object$terms, data)
+      y <- model.response(data)
     }
-    # predictor matrix is stored with column for intercept (if any)
-    x <- removeIntercept(x)
-    ## prepare cross-validation
-    # extract function call for model fit
-    call <- object$call
-    call[[1]] <- as.name("ltsReg")
-    # if the model was fitted with formula method, 'formula' and 'data' 
-    # arguments are removed from call and 'x' and 'y' are used instead
-    call$formula <- NULL
-    call$data <- NULL
-    call$intercept <- object$intercept
-    ## call function perryFit() to estimate the prediction error
-    out <- perryFit(call, x=x, y=y, splits=splits, predictArgs=list(fit=fit), 
-        cost=cost, costArgs=list(...), envir=parent.frame(), ncores=ncores, 
-        cl=cl, seed=seed)
-    out$call <- matchedCall
-    out
+  }
+  # predictor matrix is stored with column for intercept (if any)
+  x <- removeIntercept(x)
+  ## prepare cross-validation
+  # extract function call for model fit
+  call <- object$call
+  call[[1]] <- as.name("ltsReg")
+  # if the model was fitted with formula method, 'formula' and 'data' 
+  # arguments are removed from call and 'x' and 'y' are used instead
+  call$formula <- NULL
+  call$data <- NULL
+  call$intercept <- object$intercept
+  ## call function perryFit() to estimate the prediction error
+  out <- perryFit(call, x=x, y=y, splits=splits, predictArgs=list(fit=fit), 
+                  cost=cost, costArgs=list(...), envir=parent.frame(), ncores=ncores, 
+                  cl=cl, seed=seed)
+  out$call <- matchedCall
+  out
 }
 
 
-#' (Repeated) cross-validation for fitted models
+#' Deprecated functions in package \pkg{perry}
 #' 
-#' Estimate the prediction error of a fitted model via (repeated) \eqn{K}-fold 
-#' cross-validation.  This works for any model for which a \code{\link{perry}} 
-#' method is available.
+#' These functions are provided for compatibility with older versions only, and 
+#' may be defunct as soon as the next release.
+#' 
+#' \code{repCV}, \code{repRS} and \code{bootPE} are wrapper functions for 
+#' \code{\link{perry}} that perform (repeated) \eqn{K}-fold cross-validation, 
+#' (repeated) random splitting (also known as random subsampling or Monte 
+#' Carlo cross-validation) and the bootstrap, respectively.
+#' 
+#' @name perry-deprecated
 #' 
 #' @param object  the fitted model for which to estimate the prediction error.
 #' @param K  an integer giving the number of folds into which the observations 
 #' should be split (the default is five).  Setting \code{K} equal to the number 
 #' of observations or groups yields leave-one-out cross-validation.
-#' @param R  an integer giving the number of replications for repeated 
-#' \eqn{K}-fold cross-validation.  This is ignored for for leave-one-out 
-#' cross-validation and other non-random splits of the data.
+#' @param m  an integer giving the number of observations or groups of 
+#' observations to be used as test data.
+#' @param R  an integer giving the number of replications.  In \code{repCV}, 
+#' this is ignored for for leave-one-out cross-validation and other non-random 
+#' splits of the data.
 #' @param foldType  a character string specifying the type of folds to be 
 #' generated.  Possible values are \code{"random"} (the default), 
 #' \code{"consecutive"} or \code{"interleaved"}.
+#' @param bootType  a character string specifying a bootstrap 
+#' estimator.  Possible values are \code{"0.632"} (the default), 
+#' or \code{"out-of-bag"}.
 #' @param grouping  a factor specifying groups of observations.  If supplied, 
 #' the data are split according to the groups rather than individual 
-#' observations such that all observations within a group belong to the same 
-#' fold.
+#' observations such that all observations within a group belong either to the 
+#' training or test data.
 #' @param folds  an object of class \code{"cvFolds"} (as returned by 
 #' \code{\link{cvFolds}}) or a control object of class \code{"foldControl"} 
 #' (see \code{\link{foldControl}}) defining the folds of the data for 
 #' (repeated) \eqn{K}-fold cross-validation.  If supplied, this is preferred 
 #' over the arguments for generating cross-validation folds.
-#' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
-#' 
-#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
-#' 
-#' @author Andreas Alfons
-#' 
-#' @seealso \code{\link{perry}}, \code{\link{repRS}}, \code{\link{bootPE}}
-#' 
-#' @example inst/doc/examples/example-repCV.R
-#' 
-#' @keywords utilities
-#' 
-#' @export
-
-repCV <- function(object, K = 5, R = 1, 
-        foldType = c("random", "consecutive", "interleaved"), 
-        grouping = NULL, folds = NULL, ...) {
-    ## initializations
-    if(is.null(folds)) 
-        folds <- foldControl(K, R, type=foldType, grouping=grouping)
-    ## call function perry() to estimate the prediction error
-    perry(object, splits=folds, ...)
-}
-
-
-#' (Repeated) random splitting for fitted models
-#' 
-#' Estimate the prediction error of a fitted model via (repeated) random 
-#' splitting (also known as random subsampling or Monte Carlo 
-#' cross-validation).  This works for any model for which a 
-#' \code{\link{perry}} method is available.
-#' 
-#' @param object  the fitted model for which to estimate the prediction error.
-#' @param m  an integer giving the number of observations or groups of 
-#' observations to be used as test data.
-#' @param R  an integer giving the number of random data splits.
-#' @param grouping  a factor specifying groups of observations.  If supplied, 
-#' the data are split according to the groups rather than individual 
-#' observations such that all observations within a group belong either to the 
-#' training or test data.
 #' @param splits  an object of class \code{"randomSplits"} (as returned by 
 #' \code{\link{randomSplits}}) or a control object of class 
 #' \code{"splitControl"} (see \code{\link{splitControl}}) defining random data 
 #' splits.  If supplied, this is preferred over the arguments for generating 
 #' random data splits.
-#' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
-#' 
-#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
-#' 
-#' @author Andreas Alfons
-#' 
-#' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{bootPE}}
-#' 
-#' @example inst/doc/examples/example-repRS.R
-#' 
-#' @keywords utilities
-#' 
-#' @export
-
-repRS <- function(object, m, R = 1, grouping = NULL, splits = NULL, ...) {
-    ## initializations
-    if(is.null(splits)) splits <- splitControl(m, R, grouping=grouping)
-    ## call function perry() to estimate the prediction error
-    perry(object, splits=splits, ...)
-}
-
-
-#' Bootstrap prediction error estimation for fitted models
-#' 
-#' Estimate the prediction error of a fitted model via the bootstrap.  This 
-#' works for any model for which a \code{\link{perry}} method is available.
-#' 
-#' @param object  the fitted model for which to estimate the prediction error.
-#' @param R  an integer giving the number of bootstrap samples.
-#' @param bootType  a character string specifying a bootstrap 
-#' estimator.  Possible values are \code{"0.632"} (the default), 
-#' or \code{"out-of-bag"}.
-#' @param grouping  a factor specifying groups of observations.  If supplied, 
-#' the groups are resampled rather than individual observations such that all 
-#' observations within a group belong either to the bootstrap sample or the 
-#' test data.
 #' @param samples  an object of class \code{"bootSamples"} (as returned by 
 #' \code{\link{bootSamples}}) or a control object of class \code{"bootControl"} 
 #' (see \code{\link{bootControl}}) defining bootstrap samples.  If supplied, 
 #' this is preferred over the arguments for generating bootstrap samples.
 #' @param \dots  additional arguments to be passed down to \code{\link{perry}}.
 #' 
-#' @return An object of class \code{"perry"} as returned by \code{\link{perry}}.
-#' 
 #' @author Andreas Alfons
 #' 
-#' @seealso \code{\link{perry}}, \code{\link{repCV}}, \code{\link{repRS}}
-#' 
-#' @example inst/doc/examples/example-bootPE.R
+#' @seealso \code{\link[base]{Deprecated}}
 #' 
 #' @keywords utilities
-#' 
+
+NULL
+
+
+#' @rdname perry-deprecated
+#' @export
+
+repCV <- function(object, K = 5, R = 1, 
+                  foldType = c("random", "consecutive", "interleaved"), 
+                  grouping = NULL, folds = NULL, ...) {
+  ## initializations
+  .Deprecated("perry")
+  if(is.null(folds)) 
+    folds <- foldControl(K, R, type=foldType, grouping=grouping)
+  ## call function perry() to estimate the prediction error
+  perry(object, splits=folds, ...)
+}
+
+
+#' @rdname perry-deprecated
+#' @export
+
+repRS <- function(object, m, R = 1, grouping = NULL, splits = NULL, ...) {
+  ## initializations
+  .Deprecated("perry")
+  if(is.null(splits)) splits <- splitControl(m, R, grouping=grouping)
+  ## call function perry() to estimate the prediction error
+  perry(object, splits=splits, ...)
+}
+
+
+#' @rdname perry-deprecated
 #' @export
 
 bootPE <- function(object, R = 1, bootType = c("0.632", "out-of-bag"), 
-        grouping = NULL, samples = NULL, ...) {
-    ## initializations
-    if(is.null(samples)) 
-        samples <- bootControl(R, type=bootType, grouping=grouping)
-    ## call function perry() to estimate the prediction error
-    perry(object, splits=samples, ...)
+                   grouping = NULL, samples = NULL, ...) {
+  ## initializations
+  .Deprecated("perry")
+  if(is.null(samples)) 
+    samples <- bootControl(R, type=bootType, grouping=grouping)
+  ## call function perry() to estimate the prediction error
+  perry(object, splits=samples, ...)
 }

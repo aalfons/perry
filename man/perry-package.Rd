@@ -14,8 +14,8 @@ Tools that allow developers to write functions for prediction
 \tabular{ll}{
 Package: \tab perry\cr
 Type: \tab Package\cr
-Version: \tab 0.1.1\cr
-Date: \tab 2012-09-09\cr
+Version: \tab 0.2.0\cr
+Date: \tab 2013-03-10\cr
 Depends: \tab R (>= 2.14.1), ggplot2 (>= 0.9.2), parallel, robustbase\cr
 Imports: \tab stats\cr
 License: \tab GPL (>= 2)\cr
@@ -29,8 +29,6 @@ accessors               Access or set information on resampling-based
 aggregate.perry         Aggregate resampling-based prediction error
                         results
 bootControl             Control object for bootstrap samples
-bootPE                  Bootstrap prediction error estimation for
-                        fitted models
 bootSamples             Bootstrap samples
 cost                    Prediction loss
 cvFolds                 Cross-validation folds
@@ -39,6 +37,7 @@ fortify.perry           Convert resampling-based prediction error
                         results into a data frame for plotting
 perry                   Resampling-based prediction error for fitted
                         models
+perry-deprecated        Deprecated functions in package 'perry'
 perry-package           Resampling-based prediction error estimation
                         for regression models
 perryFit                Resampling-based prediction error for model
@@ -53,8 +52,6 @@ perrySplits             Data splits for resampling-based prediction
 perryTuning             Resampling-based prediction error for tuning
                         parameter selection
 randomSplits            Random data splits
-repCV                   (Repeated) cross-validation for fitted models
-repRS                   (Repeated) random splitting for fitted models
 reperry                 Recompute resampling-based prediction error
                         measures
 splitControl            Control object for random data splits
@@ -67,6 +64,6 @@ summary.perry           Summarize resampling-based prediction error
 \author{
 Andreas Alfons [aut, cre]
 
-Maintainer: Andreas Alfons <andreas.alfons@kuleuven.be>
+Maintainer: Andreas Alfons <alfons@ese.eur.nl>
 }
 \keyword{package}
