@@ -1,7 +1,7 @@
-# ----------------------
+# ------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus University Rotterdam
+# ------------------------------------
 
 #' Access or set information on resampling-based prediction error results
 #' 
@@ -61,20 +61,20 @@ peNames.perrySelect <- function(x) names(x$pe)[-1]
 
 #' @S3method peNames<- perry
 "peNames<-.perry" <- function(x, value) {
-    object <- x
-    names(object$pe) <- names(object$se) <- value
-    if(hasComponent(object, "reps")) colnames(object$reps) <- value
-    eval.parent(substitute(x <- object))
+  object <- x
+  names(object$pe) <- names(object$se) <- value
+  if(hasComponent(object, "reps")) colnames(object$reps) <- value
+  eval.parent(substitute(x <- object))
 }
 
 #' @S3method peNames<- perrySelect
 "peNames<-.perrySelect" <- function(x, value) {
-    object <- x
-    names(object$best) <- value
-    value <- c("Fit", value)
-    names(object$pe) <- names(object$se) <- value
-    if(hasComponent(object, "reps")) names(object$reps) <- value
-    eval.parent(substitute(x <- object))
+  object <- x
+  names(object$best) <- value
+  value <- c("Fit", value)
+  names(object$pe) <- names(object$se) <- value
+  if(hasComponent(object, "reps")) names(object$reps) <- value
+  eval.parent(substitute(x <- object))
 }
 
 
@@ -99,15 +99,15 @@ fits.perrySelect <- function(x) x$pe$Fit
 
 #' @S3method fits<- perrySelect
 "fits<-.perrySelect" <- function(x, value) {
-    object <- x
-    if(is.factor(value)) value <- factor(as.character(value), levels=value)
-    object$pe$Fit <- object$se$Fit <- value
-    if(!is.null(reps <- x$reps)) {
-        indices <- match(reps$Fit, x$pe$Fit, nomatch=0)
-        object$reps$Fit <- value[indices]
-    }
-    names(object$yHat) <- value
-    eval.parent(substitute(x <- object))
+  object <- x
+  if(is.factor(value)) value <- factor(as.character(value), levels=value)
+  object$pe$Fit <- object$se$Fit <- value
+  if(!is.null(reps <- x$reps)) {
+    indices <- match(reps$Fit, x$pe$Fit, nomatch=0)
+    object$reps$Fit <- value[indices]
+  }
+  names(object$yHat) <- value
+  eval.parent(substitute(x <- object))
 }
 
 
@@ -131,15 +131,38 @@ nfits <- function(x) UseMethod("nfits")
 nfits.perry <- nfits.perrySelect <- function(x) nrow(x$pe)
 
 
-## @rdname accessors
-## @export
-#getR <- function(x) UseMethod("getR")
-#
-## @S3method getR cvFolds
-## @S3method getR randomSplits
-## @S3method getR bootSamples
-#getR.cvFolds <- getR.randomSplits <- getR.bootSamples <- function(x) x$R
-#
-## @S3method getR perry
-## @S3method getR perrySelect
-#getR.perry <- getR.perrySelect <- function(x) getR(x$splits)
+# ## @rdname accessors
+# ## @export
+# getR <- function(x) UseMethod("getR")
+# 
+# ## @S3method getR cvFolds
+# ## @S3method getR randomSplits
+# ## @S3method getR bootSamples
+# getR.cvFolds <- getR.randomSplits <- getR.bootSamples <- function(x) x$R
+# 
+# ## @S3method getR perry
+# ## @S3method getR perrySelect
+# getR.perry <- getR.perrySelect <- function(x) getR(x$splits)
+
+# -------------------------
+
+#' @S3method coef perryTuning
+coef.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  coef(finalModel, ...)
+}
+
+#' @S3method fitted perryTuning
+fitted.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  fitted(finalModel, ...)
+}
+
+#' @S3method residuals perryTuning
+residuals.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  residuals(finalModel, ...)
+}

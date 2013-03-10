@@ -1,7 +1,7 @@
-# ----------------------
+# ------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus University Rotterdam
+# ------------------------------------
 
 #' Resampling-based prediction error for tuning parameter selection
 #' 
@@ -66,7 +66,8 @@
 #' to use \code{c("x", "y")}).  It should be noted that the \code{formula} or 
 #' \code{data} arguments take precedence over \code{x}.
 #' 
-#' @aliases print.perryTuning
+#' @aliases coef.perryTuning fitted.perryTuning predict.perryTuning 
+#' print.perryTuning residuals.perryTuning
 #' 
 #' @param object  a function or an unevaluated function call for fitting 
 #' a model (see \code{\link{call}} for the latter).
@@ -124,6 +125,8 @@
 #' @param seFactor  a numeric value giving a multiplication factor of the 
 #' standard error for the selection of the best model.  This is ignored if 
 #' \code{selectBest} is \code{"min"}.
+#' @param final  a logical indicating whether to fit the final model with the 
+#' optimal combination of tuning parameters.
 #' @param names  an optional character vector giving names for the arguments 
 #' containing the data to be used in the function call (see \dQuote{Details}).
 #' @param envir  the \code{\link{environment}} in which to evaluate the 
@@ -170,10 +173,19 @@
 #' the standard error used for the selection of the best model.
 #' @returnItem tuning  a data frame containing the grid of tuning parameter 
 #' values for which the prediction error was estimated.
+#' @returnItem finalModel  the final model fit with the optimal combination of 
+#' tuning parameters.  This is only returned if argument \code{final} is 
+#' \code{TRUE}.
 #' @returnItem call  the matched function call.
 #' 
-#' @note The same data splits are used for all combinations of tuning parameter 
+#' @note 
+#' The same data splits are used for all combinations of tuning parameter 
 #' values for maximum comparability.
+#' 
+#' If a final model with the optimal combination of tuning parameters is 
+#' computed, class \code{"perryTuning"} inherits the \code{coef()}, 
+#' \code{fitted()}, \code{predict()} and \code{residuals()} methods from 
+#' its component \code{finalModel}.
 #' 
 #' @author Andreas Alfons
 #' 
@@ -200,37 +212,43 @@ perryTuning <- function(object, ...) UseMethod("perryTuning")
 #' @export
 
 perryTuning.function <- function(object, formula, data = NULL, x = NULL, y, 
-        tuning = list(), args = list(), splits = foldControl(), 
-        predictFun = predict, predictArgs = list(), cost = rmspe, 
-        costArgs = list(), selectBest = c("min", "hastie"), seFactor = 1, 
-        names = NULL, envir = parent.frame(), ncores = 1, cl = NULL, 
-        seed = NULL, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("perryTuning")
-    call <- as.call(c(object, args))  # set up unevaluated function call
-    haveFormula <- !missing(formula)
-    if(haveFormula || !missing(data)) {
-        if(is.null(names)) names <- c("formula", "data")
-        if(haveFormula) call[[names[1]]] <- formula
-        names <- names[-1]
-        mf <- match.call(expand.dots = FALSE)
-        m <- match(c("formula", "data"), names(mf), 0)
-        mf <- mf[c(1, m)]
-        mf$drop.unused.levels <- TRUE
-        mf[[1]] <- as.name("model.frame")
-        data <- eval(mf, envir)
-        if(is.empty.model(attr(data, "terms"))) stop("empty model")
-        y <- model.response(data)  # extract response from model frame
-    }
-    ## call method for unevaluated function calls
-    out <- perryTuning(call, data=data, x=x, y=y, tuning=tuning, 
-        splits=splits, predictFun=predictFun, predictArgs=predictArgs, 
-        cost=cost, costArgs=costArgs, selectBest=selectBest, 
-        seFactor=seFactor, names=names, envir=envir, ncores=ncores, 
-        cl=cl, seed=seed, ...)
-    out$call <- matchedCall
-    out
+                                 tuning = list(), args = list(), 
+                                 splits = foldControl(), predictFun = predict, 
+                                 predictArgs = list(), cost = rmspe, 
+                                 costArgs = list(), 
+                                 selectBest = c("min", "hastie"), seFactor = 1, 
+                                 final = FALSE, names = NULL, 
+                                 envir = parent.frame(), ncores = 1, cl = NULL, 
+                                 seed = NULL, ...) {
+  ## initializations
+  matchedCall <- match.call()
+  matchedCall[[1]] <- as.name("perryTuning")
+  # set up unevaluated function call
+  final <- isTRUE(final)
+  call <- as.call(c(if(final) substitute(object) else object, args))
+  # check formula and data
+  haveFormula <- !missing(formula)
+  if(haveFormula || !missing(data)) {
+    if(is.null(names)) names <- c("formula", "data")
+    if(haveFormula) call[[names[1]]] <- formula
+    names <- names[-1]
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data"), names(mf), 0)
+    mf <- mf[c(1, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1]] <- as.name("model.frame")
+    data <- eval(mf, envir)
+    if(is.empty.model(attr(data, "terms"))) stop("empty model")
+    y <- model.response(data)  # extract response from model frame
+  }
+  ## call method for unevaluated function calls
+  out <- perryTuning(call, data=data, x=x, y=y, tuning=tuning, splits=splits, 
+                     predictFun=predictFun, predictArgs=predictArgs, cost=cost, 
+                     costArgs=costArgs, selectBest=selectBest, 
+                     seFactor=seFactor, final=final, names=names, envir=envir, 
+                     ncores=ncores, cl=cl, seed=seed, ...)
+  out$call <- matchedCall
+  out
 }
 
 
@@ -239,109 +257,136 @@ perryTuning.function <- function(object, formula, data = NULL, x = NULL, y,
 #' @export
 
 perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(), 
-        splits = foldControl(), predictFun = predict, predictArgs = list(), 
-        cost = rmspe, costArgs = list(), selectBest = c("min", "hastie"), 
-        seFactor = 1, names = NULL, envir = parent.frame(), ncores = 1, 
-        cl = NULL, seed = NULL, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("perryTuning")
-    n <- nobs(y)
+                             splits = foldControl(), predictFun = predict, 
+                             predictArgs = list(), cost = rmspe, 
+                             costArgs = list(), selectBest = c("min", "hastie"), 
+                             seFactor = 1, final = FALSE, names = NULL, 
+                             envir = parent.frame(), ncores = 1, cl = NULL, 
+                             seed = NULL, ...) {
+  ## initializations
+  matchedCall <- match.call()
+  matchedCall[[1]] <- as.name("perryTuning")
+  n <- nobs(y)
+  if(is.null(data)) {
+    sx <- "x"
+    nx <- nobs(x)
+  } else {
+    sx <- "data"
+    nx <- nobs(data)
+  }
+  if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
+  # create all combinations of tuning parameters
+  tuning <- do.call(expand.grid, tuning)
+  nTuning <- nrow(tuning)
+  pTuning <- ncol(tuning)
+  if(nTuning == 0 || pTuning == 0) {
+    # use function perryFit() if no tuning parameters are supplied
+    out <- perryFit(object, data, x, y, splits=splits, predictFun=predictFun, 
+                    predictArgs=predictArgs, cost=cost, costArgs=costArgs, 
+                    names=names, envir=envir, ncores=ncores, cl=cl, seed=seed)
+    return(out)
+  }
+  if(!is.null(seed)) set.seed(seed)
+  ## compute data splits
+  if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
+  # set up parallel computing if requested
+  haveCl <- inherits(cl, "cluster")
+  if(haveCl) haveNcores <- FALSE
+  else {
+    if(is.na(ncores)) ncores <- detectCores()  # use all available cores
+    if(!is.numeric(ncores) || is.infinite(ncores) || ncores < 1) {
+      ncores <- 1  # use default value
+      warning("invalid value of 'ncores'; using default value")
+    } else ncores <- as.integer(ncores)
+    if(nTuning == 1) {
+      R <- splits$R
+      if(inherits(splits, "cvFolds") && R == 1) {
+        ncores <- min(ncores, splits$K)
+      } else ncores <- min(ncores, R)
+    } else ncores <- min(ncores, nTuning)
+    haveNcores <- ncores > 1
+  }
+  # check whether parallel computing should be used
+  useParallel <- haveNcores || haveCl
+  # set up multicore or snow cluster if not supplied
+  if(haveNcores) {
+    if(.Platform$OS.type == "windows") {
+      cl <- makePSOCKcluster(rep.int("localhost", ncores))
+    } else cl <- makeForkCluster(ncores)
+    on.exit(stopCluster(cl))
+  }
+  ## compute the predictions for each combination of tuning parameters
+  fits <- seq_len(nTuning)
+  tn <- names(tuning)
+  if(useParallel) {
+    # set seed of the random number stream
+    if(!is.null(seed)) clusterSetRNGStream(cl, iseed=seed)
+    else if(haveNcores) clusterSetRNGStream(cl)
+    if(nTuning == 1) {
+      yHat <- lapply(fits, function(i) {
+        # add tuning parameters to function call
+        for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
+        # compute the predictions
+        perryPredictions(object, data, x, y, splits=splits, 
+                         predictFun=predictFun, predictArgs=predictArgs, 
+                         names=names, envir=envir, cl=cl)
+      })
+    } else {
+      yHat <- parLapply(cl, fits, function(i) {
+        # add tuning parameters to function call
+        for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
+        # compute the predictions
+        perryPredictions(object, data, x, y, splits=splits, 
+                         predictFun=predictFun, predictArgs=predictArgs, 
+                         names=names, envir=envir)
+      })
+    }
+  } else {
+    yHat <- lapply(fits, function(i) {
+      # add tuning parameters to function call
+      for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
+      # compute the predictions
+      perryPredictions(object, data, x, y, splits=splits, 
+                       predictFun=predictFun, predictArgs=predictArgs, 
+                       names=names, envir=envir)
+    })
+  }
+  ## estimate the prediction loss for each combination of tuning parameters
+  pe <- lapply(yHat, function(yHat) {
+    perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
+  })
+  pe <- combineResults(pe, fits=fits)
+  ## select optimal tuning parameters
+  best <- selectBest(pe$pe, pe$se, method=selectBest, seFactor=seFactor)
+  ## compute final model if requested
+  final <- isTRUE(final)
+  if(final) {
+    # plug data into function call
     if(is.null(data)) {
-        sx <- "x"
-        nx <- nobs(x)
+      if(is.null(names)) names <- c("x", "y")
+      object[[names[1]]] <- substitute(x)
+      object[[names[2]]] <- substitute(y)
     } else {
-        sx <- "data"
-        nx <- nobs(data)
+      if(is.null(names)) names <- "data"
+      object[[names]] <- substitute(data)
     }
-    if(!isTRUE(n == nx)) stop(sprintf("'%s' must have %d observations", sx, nx))
-    # create all combinations of tuning parameters
-    tuning <- do.call(expand.grid, tuning)
-    nTuning <- nrow(tuning)
-    pTuning <- ncol(tuning)
-    if(nTuning == 0 || pTuning == 0) {
-        # use function perryFit() if no tuning parameters are supplied
-        out <- perryFit(object, data, x, y, splits=splits, 
-            predictFun=predictFun, predictArgs=predictArgs, cost=cost, 
-            costArgs=costArgs, names=names, envir=envir, ncores=ncores, 
-            cl=cl, seed=seed)
-        return(out)
+    # add optimal combination of tuning parameters to function call
+    i <- best$best
+    for(j in seq_len(pTuning)) object[[tn[j]]] <- unique(tuning[i, j])
+    # evaluate function call to compute final model
+    # use this environment since data are added with substitute()
+    finalModel <- try(eval(object))
+    if(inherits(finalModel, "try-error")) {
+      final <- FALSE
+      warn <- gsub("Error in", "In", finalModel)
+      warning(warn, call.=FALSE)
     }
-    if(!is.null(seed)) set.seed(seed)
-    ## compute data splits
-    if(hasMethod("perrySplits", class(splits))) splits <- perrySplits(n, splits)
-    # set up parallel computing if requested
-    haveCl <- inherits(cl, "cluster")
-    if(haveCl) haveNcores <- FALSE
-    else {
-        if(is.na(ncores)) ncores <- detectCores()  # use all available cores
-        if(!is.numeric(ncores) || is.infinite(ncores) || ncores < 1) {
-            ncores <- 1  # use default value
-            warning("invalid value of 'ncores'; using default value")
-        } else ncores <- as.integer(ncores)
-        if(nTuning == 1) {
-            R <- splits$R
-            if(inherits(splits, "cvFolds") && R == 1) {
-                ncores <- min(ncores, splits$K)
-            } else ncores <- min(ncores, R)
-        } else ncores <- min(ncores, nTuning)
-        haveNcores <- ncores > 1
-    }
-    # check whether parallel computing should be used
-    useParallel <- haveNcores || haveCl
-    # set up multicore or snow cluster if not supplied
-    if(haveNcores) {
-        if(.Platform$OS.type == "windows") {
-            cl <- makePSOCKcluster(rep.int("localhost", ncores))
-        } else cl <- makeForkCluster(ncores)
-        on.exit(stopCluster(cl))
-    }
-    ## compute the predictions for each combination of tuning parameters
-    fits <- seq_len(nTuning)
-    tn <- names(tuning)
-    if(useParallel) {
-        # set seed of the random number stream
-        if(!is.null(seed)) clusterSetRNGStream(cl, iseed=seed)
-        else if(haveNcores) clusterSetRNGStream(cl)
-        if(nTuning == 1) {
-            yHat <- lapply(fits, function(i) {
-                    # add tuning parameters to function call
-                    for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
-                    # compute the predictions
-                    perryPredictions(object, data, x, y, splits=splits, 
-                        predictFun=predictFun, predictArgs=predictArgs, 
-                        names=names, envir=envir, cl=cl)
-                })
-        } else {
-            yHat <- parLapply(cl, fits, function(i) {
-                    # add tuning parameters to function call
-                    for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
-                    # compute the predictions
-                    perryPredictions(object, data, x, y, splits=splits, 
-                        predictFun=predictFun, predictArgs=predictArgs, 
-                        names=names, envir=envir)
-                })
-        }
-    } else {
-        yHat <- lapply(fits, function(i) {
-                # add tuning parameters to function call
-                for(j in seq_len(pTuning)) object[[tn[j]]] <- tuning[i, j]
-                # compute the predictions
-                perryPredictions(object, data, x, y, splits=splits, 
-                    predictFun=predictFun, predictArgs=predictArgs, 
-                    names=names, envir=envir)
-            })
-    }
-    ## estimate the prediction loss for each combination of tuning parameters
-    pe <- lapply(yHat, 
-        function(yHat) perryCost(splits, y, yHat, cost=cost, costArgs=costArgs))
-    pe <- combineResults(pe, fits=fits)
-    ## select optimal tuning parameters
-    best <- selectBest(pe$pe, pe$se, method=selectBest, seFactor=seFactor)
-    ## construct return object
-    names(yHat) <- fits
-    pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best, 
-        list(tuning=tuning, call=matchedCall))
-    class(pe) <- c("perryTuning", "perrySelect")
-    pe
+  }
+  ## construct return object
+  names(yHat) <- fits
+  pe <- c(pe, list(splits=splits, y=y, yHat=yHat), best, list(tuning=tuning))
+  if(final) pe$finalModel <- finalModel
+  pe$call <- matchedCall
+  class(pe) <- c("perryTuning", "perrySelect")
+  pe
 }

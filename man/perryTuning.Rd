@@ -1,8 +1,12 @@
 \name{perryTuning}
+\alias{coef.perryTuning}
+\alias{fitted.perryTuning}
 \alias{perryTuning}
 \alias{perryTuning.call}
 \alias{perryTuning.function}
+\alias{predict.perryTuning}
 \alias{print.perryTuning}
+\alias{residuals.perryTuning}
 \title{Resampling-based prediction error for tuning parameter selection}
 \usage{
   perryTuning(object, ...)
@@ -13,16 +17,16 @@
     predictFun = predict, predictArgs = list(),
     cost = rmspe, costArgs = list(),
     selectBest = c("min", "hastie"), seFactor = 1,
-    names = NULL, envir = parent.frame(), ncores = 1,
-    cl = NULL, seed = NULL, ...)
+    final = FALSE, names = NULL, envir = parent.frame(),
+    ncores = 1, cl = NULL, seed = NULL, ...)
 
   \method{perryTuning}{call} (object, data = NULL,
     x = NULL, y, tuning = list(), splits = foldControl(),
     predictFun = predict, predictArgs = list(),
     cost = rmspe, costArgs = list(),
     selectBest = c("min", "hastie"), seFactor = 1,
-    names = NULL, envir = parent.frame(), ncores = 1,
-    cl = NULL, seed = NULL, ...)
+    final = FALSE, names = NULL, envir = parent.frame(),
+    ncores = 1, cl = NULL, seed = NULL, ...)
 }
 \arguments{
   \item{object}{a function or an unevaluated function call
@@ -113,6 +117,10 @@
   best model.  This is ignored if \code{selectBest} is
   \code{"min"}.}
 
+  \item{final}{a logical indicating whether to fit the
+  final model with the optimal combination of tuning
+  parameters.}
+
   \item{names}{an optional character vector giving names
   for the arguments containing the data to be used in the
   function call (see \dQuote{Details}).}
@@ -186,6 +194,10 @@
   \item{tuning}{a data frame containing the grid of tuning
   parameter values for which the prediction error was
   estimated.}
+
+  \item{finalModel}{the final model fit with the optimal
+  combination of tuning parameters.  This is only returned
+  if argument \code{final} is \code{TRUE}.}
 
   \item{call}{the matched function call.}
 }
@@ -270,6 +282,12 @@
 \note{
   The same data splits are used for all combinations of
   tuning parameter values for maximum comparability.
+
+  If a final model with the optimal combination of tuning
+  parameters is computed, class \code{"perryTuning"}
+  inherits the \code{coef()}, \code{fitted()},
+  \code{predict()} and \code{residuals()} methods from its
+  component \code{finalModel}.
 }
 \examples{
 data("coleman")

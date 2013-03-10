@@ -1,5 +1,8 @@
 Changes in perry version 0.2.0
 
+    + New argument 'final' in perryTuning() to include final model with optimal 
+      combination of tuning paramters.
+    
     + Wrapper functions repCV(), repRS() and bootPE() are now deprecated.
 
 
