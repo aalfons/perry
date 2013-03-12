@@ -15,7 +15,7 @@ Tools that allow developers to write functions for prediction
 Package: \tab perry\cr
 Type: \tab Package\cr
 Version: \tab 0.2.0\cr
-Date: \tab 2013-03-10\cr
+Date: \tab 2013-03-12\cr
 Depends: \tab R (>= 2.14.1), ggplot2 (>= 0.9.2), parallel, robustbase\cr
 Imports: \tab stats\cr
 License: \tab GPL (>= 2)\cr
