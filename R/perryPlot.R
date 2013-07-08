@@ -184,7 +184,7 @@ boxPlot <- function(data, mapping, facets = attr(data, "facets"),
 
 densityPlot <- function(data, mapping, facets = attr(data, "facets"), 
         main = NULL, xlab = NULL, ylab = NULL, ...) {
-    # define aesthetic mapping for box plot
+    # define aesthetic mapping for density plot
     if(missing(mapping)) {
         if(nlevels(data[, "Fit"]) > 1 || length(unique(data[, "Fit"])) > 1) 
             mapping <- aes_string(x="PE", group="Fit", color="Fit")
