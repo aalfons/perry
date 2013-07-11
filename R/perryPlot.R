@@ -33,7 +33,7 @@
 #' standard error for displaying error bars in dot plots or line plots.  Error 
 #' bars in those plots can be suppressed by setting this to \code{NA}.
 #' @param mapping  an aesthetic mapping to override the default behavior (see 
-#' \code{\link{aes}} or \code{\link{aes_string}})
+#' \code{\link[ggplot2]{aes}} or \code{\link[ggplot2]{aes_string}}).
 #' @param facets  a faceting formula to override the default behavior.  If 
 #' supplied, \code{\link[ggplot2]{facet_wrap}} or 
 #' \code{\link[ggplot2]{facet_grid}} is called depending on whether the formula 

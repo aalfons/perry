@@ -70,8 +70,8 @@
   be suppressed by setting this to \code{NA}.}
 
   \item{mapping}{an aesthetic mapping to override the
-  default behavior (see \code{\link{aes}} or
-  \code{\link{aes_string}})}
+  default behavior (see \code{\link[ggplot2]{aes}} or
+  \code{\link[ggplot2]{aes_string}}).}
 
   \item{facets}{a faceting formula to override the default
   behavior.  If supplied, \code{\link[ggplot2]{facet_wrap}}
