@@ -1,7 +1,7 @@
-# ----------------------
+# --------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus Universiteit Rotterdam
+# --------------------------------------
 
 #' Plot resampling-based prediction error results
 #' 

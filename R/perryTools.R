@@ -1,7 +1,7 @@
-# ----------------------
+# --------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus Universiteit Rotterdam
+# --------------------------------------
 
 ## compute the predictions
 

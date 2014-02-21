@@ -29,6 +29,7 @@
   results.
 }
 \examples{
+library("perryExamples")
 data("coleman")
 set.seed(1234)  # set seed for reproducibility
 

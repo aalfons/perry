@@ -1,3 +1,13 @@
+Changes in perry version 0.3.0
+
+    + Moved perry() methods to new package perryExamples.
+    
+    + Removed deprecated wrapper functions repCV(), repRS() and bootPE().
+    
+    + Added function lmridge for illustration purposes.
+
+
+
 Changes in perry version 0.2.0
 
     + New argument 'final' in perryTuning() to include final model with optimal 

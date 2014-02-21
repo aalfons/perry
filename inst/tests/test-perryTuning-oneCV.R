@@ -3,6 +3,7 @@ context("perryTuning - one replication of CV")
 
 ## load packages
 library("perry", quietly=TRUE)
+library("perryExamples", quietly=TRUE)
 
 ## set seed for reproducibility
 set.seed(1234)

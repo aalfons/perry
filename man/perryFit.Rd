@@ -229,6 +229,7 @@
   \code{data} arguments take precedence over \code{x}.
 }
 \examples{
+library("perryExamples")
 data("coleman")
 set.seed(1234)  # set seed for reproducibility
 

@@ -1,3 +1,4 @@
+library("perryExamples")
 data("coleman")
 
 ## evaluate MM regression models tuned for 85% and 95% efficiency

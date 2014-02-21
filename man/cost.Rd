@@ -65,6 +65,7 @@
 }
 \examples{
 # fit an MM-regression model
+library("perryExamples")
 data("coleman")
 fit <- lmrob(Y~., data=coleman)
 

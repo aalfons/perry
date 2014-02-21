@@ -68,6 +68,7 @@
   of results.
 }
 \examples{
+library("perryExamples")
 data("coleman")
 
 # perform cross-validation for an LTS regression model

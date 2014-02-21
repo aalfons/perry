@@ -14,10 +14,11 @@ Tools that allow developers to write functions for prediction
 \tabular{ll}{
 Package: \tab perry\cr
 Type: \tab Package\cr
-Version: \tab 0.2.0\cr
-Date: \tab 2013-03-12\cr
-Depends: \tab R (>= 2.14.1), ggplot2 (>= 0.9.2), parallel, robustbase\cr
+Version: \tab 0.3.0\cr
+Date: \tab 2014-02-21\cr
+Depends: \tab R (>= 2.14.1), ggplot2 (>= 0.9.2), parallel\cr
 Imports: \tab stats\cr
+Suggests: \tab perryExamples\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -37,7 +38,6 @@ fortify.perry           Convert resampling-based prediction error
                         results into a data frame for plotting
 perry                   Resampling-based prediction error for fitted
                         models
-perry-deprecated        Deprecated functions in package 'perry'
 perry-package           Resampling-based prediction error estimation
                         for regression models
 perryFit                Resampling-based prediction error for model

@@ -1,7 +1,7 @@
-# ----------------------
+# --------------------------------------
 # Author: Andreas Alfons
-#         KU Leuven
-# ----------------------
+#         Erasmus Universiteit Rotterdam
+# --------------------------------------
 
 #' Prediction loss
 #' 
@@ -56,6 +56,7 @@
 #' 
 #' @examples 
 #' # fit an MM-regression model
+#' library("perryExamples")
 #' data("coleman")
 #' fit <- lmrob(Y~., data=coleman)
 #' 
