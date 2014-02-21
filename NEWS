@@ -2,6 +2,8 @@ Changes in perry version 0.3.0
 
     + Moved perry() methods to new package perryExamples.
     
+    + Bugfix in perrySelect() when names need to be adjusted.
+    
     + Removed deprecated wrapper functions repCV(), repRS() and bootPE().
     
     + Added function lmridge for illustration purposes.

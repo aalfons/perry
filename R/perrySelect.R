@@ -142,7 +142,7 @@ perrySelect <- function(..., .list = list(...), .reshape = FALSE,
         peNames <- unique(lapply(.list, peNames))
         adjustNames <- length(peNames) > 1
         peNames <- if(adjustNames) defaultNames(d) else peNames[[1]]
-    }
+    } else adjustNames <- FALSE
     ## prepare objects of class "perrySelect"
     if(any(isPerrySelect)) {
         # prepare names
