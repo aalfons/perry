@@ -1,5 +1,8 @@
 Changes in perry version 0.3.0
 
+    + Function perryReshape() now contains an argument for tuning parameters.  
+      If supplied, an object of class "perryTuning" is returned.
+    
     + Moved perry() methods to new package perryExamples.
     
     + Bugfix in perrySelect() when names need to be adjusted.

@@ -3,7 +3,7 @@
 \title{Reshape resampling-based prediction error results}
 \usage{
   perryReshape(x, selectBest = c("min", "hastie"),
-    seFactor = 1, ...)
+    seFactor = 1, tuning = list(), ...)
 }
 \arguments{
   \item{x}{an object inheriting from class \code{"perry"}
@@ -30,17 +30,21 @@
   best model.  This is ignored if \code{selectBest} is
   \code{"min"}.}
 
+  \item{tuning}{a list of tuning parameter values that
+  correspond to the different prediction error results.
+  The names of the list components should thereby
+  correspond to the argument names of the tuning
+  parameters.  For each tuning parameter, a vector of
+  values can be supplied.  A data frame containing all
+  possible combinations of tuning parameter values is then
+  added to the reshaped prediction error results.}
+
   \item{\dots}{additional arguments to be passed down.}
 }
 \value{
-  An object of class \code{"perrySelect"} with the
-  following components:
-
-  \item{splits}{an object giving the data splits used to
-  estimate the prediction error.}
-
-  \item{best}{an integer giving the index of the model with
-  the best prediction performance.}
+  An object of class \code{"perrySelect"} (subclass
+  \code{"perryTuning"} if a list of tuning parameters is
+  supplied) with the following components:
 
   \item{pe}{a data frame containing the estimated
   prediction errors for the models.  In case of more than
@@ -50,6 +54,24 @@
   \item{se}{a data frame containing the estimated standard
   errors of the prediction loss for the models.}
 
+  \item{reps}{a data frame containing the estimated
+  prediction errors for the models from all replications.
+  This is only returned in case of more than one resampling
+  replication.}
+
+  \item{splits}{an object giving the data splits used to
+  estimate the prediction error.}
+
+  \item{y}{the response.}
+
+  \item{yHat}{a list containing the predicted values for
+  the models.  Each list component is again a list
+  containing the corresponding predicted values from all
+  replications.}
+
+  \item{best}{an integer giving the index of the model with
+  the best prediction performance.}
+
   \item{selectBest}{a character string specifying the
   criterion used for selecting the best model.}
 
@@ -57,10 +79,10 @@
   factor of the standard error used for the selection of
   the best model.}
 
-  \item{reps}{a data frame containing the estimated
-  prediction errors for the models from all replications.
-  This is only returned in case of more than one resampling
-  replication.}
+  \item{tuning}{a data frame containing the grid of tuning
+  parameter values that correspond to the different
+  prediction error results (only subclass
+  \code{"perryTuning"}).}
 }
 \description{
   Reshape resampling-based prediction error results into an
