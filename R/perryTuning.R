@@ -390,3 +390,34 @@ perryTuning.call <- function(object, data = NULL, x = NULL, y, tuning = list(),
   class(pe) <- c("perryTuning", "perrySelect")
   pe
 }
+
+
+## methods
+
+#' @S3method coef perryTuning
+coef.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  coef(finalModel, ...)
+}
+
+#' @S3method fitted perryTuning
+fitted.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  fitted(finalModel, ...)
+}
+
+#' @S3method predict perryTuning
+predict.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  predict(finalModel, ...)
+}
+
+#' @S3method residuals perryTuning
+residuals.perryTuning <- function(object, ...) {
+  finalModel <- object$finalModel
+  if(is.null(finalModel)) stop("final model not available")
+  residuals(finalModel, ...)
+}

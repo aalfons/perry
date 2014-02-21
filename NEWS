@@ -7,6 +7,8 @@ Changes in perry version 0.3.0
     
     + Bugfix in perrySelect() when names need to be adjusted.
     
+    + Bugfix in reperry() and subset(): final model is now removed.
+    
     + Removed deprecated wrapper functions repCV(), repRS() and bootPE().
     
     + Added function lmridge for illustration purposes.

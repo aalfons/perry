@@ -111,8 +111,7 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
       x[names(best)] <- best
     } else x$best <- x$best[integer()]  # this ensures empty integer vector
     # extract tuning parameters for the models to keep if applicable
-    if(inherits(x, "perryTuning")) 
-      x$tuning <- x$tuning[subset, , drop=FALSE]
+    if(inherits(x, "perryTuning")) x$tuning <- x$tuning[subset, , drop=FALSE]
     # make sure that fits of subset are correct
     fits <- fits[subset]  # models to keep
     haveFactor <- is.factor(fits)
@@ -124,6 +123,8 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
     }
     fits(x) <- fits
   }
+  # remove final model and return subset
+  if(inherits(x, "perryTuning")) x$finalModel <- NULL
   x
 }
 

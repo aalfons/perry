@@ -44,19 +44,19 @@ reperry <- function(object, ...) UseMethod("reperry")
 #' @export
 
 reperry.perry <- function(object, cost = rmspe, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("reperry")
-    if(npe(object) == 0) stop("empty object")
-    peNames <- peNames(object)  # names before recomputing the prediction loss
-    ## re-estimate the prediction loss
-    pe <- perryCost(object$splits, object$y, object$yHat, 
-        cost=cost, costArgs=list(...))
-    ## construct return object
-    object[names(pe)] <- pe
-    object$call <- matchedCall
-    peNames(object) <- peNames  # make sure the names are the same as before
-    object
+  ## initializations
+  matchedCall <- match.call()
+  matchedCall[[1]] <- as.name("reperry")
+  if(npe(object) == 0) stop("empty object")
+  peNames <- peNames(object)  # names before recomputing the prediction loss
+  ## re-estimate the prediction loss
+  pe <- perryCost(object$splits, object$y, object$yHat, 
+                  cost=cost, costArgs=list(...))
+  ## construct return object
+  object[names(pe)] <- pe
+  object$call <- matchedCall
+  peNames(object) <- peNames  # make sure the names are the same as before
+  object
 }
 
 
@@ -65,24 +65,25 @@ reperry.perry <- function(object, cost = rmspe, ...) {
 #' @export
 
 reperry.perrySelect <- function(object, cost = rmspe, ...) {
-    ## initializations
-    matchedCall <- match.call()
-    matchedCall[[1]] <- as.name("reperry")
-    if(npe(object) == 0 || isTRUE(nfits(object) == 0)) stop("empty object")
-    peNames <- peNames(object)  # names before re-estimating the prediction loss
-    ## re-estimate the prediction loss for the models
-    pe <- lapply(object$yHat, 
-        function(yHat, splits, y, cost, costArgs) {
-            perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
-        }, splits=object$splits, y=object$y, cost=cost, costArgs=list(...))
-    pe <- combineResults(pe, fits=fits(object))
-    ## select optimal model
-    best <- selectBest(pe$pe, pe$se, method=object$selectBest, 
-        seFactor=object$seFactor)
-    ## construct return object
-    object[names(pe)] <- pe
-    object[names(best)] <- best
-    object$call <- matchedCall
-    peNames(object) <- peNames  # make sure the names are the same as before
-    object
+  ## initializations
+  matchedCall <- match.call()
+  matchedCall[[1]] <- as.name("reperry")
+  if(npe(object) == 0 || isTRUE(nfits(object) == 0)) stop("empty object")
+  peNames <- peNames(object)  # names before re-estimating the prediction loss
+  ## re-estimate the prediction loss for the models
+  pe <- lapply(object$yHat, 
+               function(yHat, splits, y, cost, costArgs) {
+                 perryCost(splits, y, yHat, cost=cost, costArgs=costArgs)
+               }, splits=object$splits, y=object$y, cost=cost, costArgs=list(...))
+  pe <- combineResults(pe, fits=fits(object))
+  ## select optimal model
+  best <- selectBest(pe$pe, pe$se, method=object$selectBest, 
+                     seFactor=object$seFactor)
+  ## construct return object
+  object[names(pe)] <- pe
+  object[names(best)] <- best
+  object$finalModel <- NULL
+  object$call <- matchedCall
+  peNames(object) <- peNames  # make sure the names are the same as before
+  object
 }
