@@ -78,11 +78,14 @@ print.perry <- print.summary.perry <- function(x, ...) {
 
 #' @S3method print perrySelect
 #' @S3method print summary.perrySelect
-print.perrySelect <- print.summary.perrySelect <- function(x, best = TRUE, ...) {
-  # print cross-validation results
-  cat("\n")
-  cat(getPrefix(x$splits), "results:\n")
-  print(x$pe, ...)
+print.perrySelect <- print.summary.perrySelect <- function(x, results = TRUE, 
+                                                           best = TRUE, ...) {
+  # print cross-validation results if requested
+  if(isTRUE(results)) {
+    cat("\n")
+    cat(getPrefix(x$splits), "results:\n")
+    print(x$pe, ...)
+  }
   # print optimal model if requested
   if(isTRUE(best)) {
     cat("\nBest model:\n")
@@ -98,12 +101,16 @@ print.perrySelect <- print.summary.perrySelect <- function(x, best = TRUE, ...) 
 
 #' @S3method print perryTuning
 #' @S3method print summary.perryTuning
-print.perryTuning <- print.summary.perryTuning <- function(x, best = TRUE, 
+print.perryTuning <- print.summary.perryTuning <- function(x, results = NULL, 
+                                                           best = TRUE, 
                                                            final = TRUE, ...) {
-  # print cross-validation results
-  cat("\n")
-  cat(getPrefix(x$splits), "results:\n")
-  print(cbind(x$tuning, x$pe[, -1, drop=FALSE]), ...)
+  # print cross-validation results if requested
+  if(is.null(results)) results <- nrow(x$pe) <= 10
+  if(isTRUE(results)) {
+    cat("\n")
+    cat(getPrefix(x$splits), "results:\n")
+    print(cbind(x$tuning, x$pe[, -1, drop=FALSE]), ...)
+  }
   # print optimal value for tuning parameters if requested
   if(isTRUE(best)) {
     if(ncol(x$tuning) == 1) cat("\nOptimal tuning parameter:\n")
