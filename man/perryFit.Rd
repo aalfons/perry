@@ -167,7 +167,7 @@
   is left out once to fit the model, and predictions are
   computed for the observations in the left-out block with
   \code{predictFun}.  Thus a prediction is obtained for
-  each observation.  The response variable and the obtained
+  each observation.  The response and the obtained
   predictions for all observations are then passed to the
   prediction loss function \code{cost} to estimate the
   prediction error.  For repeated \eqn{K}-fold
@@ -177,11 +177,11 @@
 
   (Repeated) random splitting is performed similarly.  In
   each replication, the data are split into a training set
-  and a test set at random.  Then the training data is used
-  to fit the model, and predictions are computed for the
-  test data.  Hence only the response values from the test
-  data and the corresponding predictions are passed to the
-  prediction loss function \code{cost}.
+  and a test set at random.  Then the training data are
+  used to fit the model, and predictions are computed for
+  the test data.  Hence only the response values from the
+  test data and the corresponding predictions are passed to
+  the prediction loss function \code{cost}.
 
   For the bootstrap estimator, each bootstrap sample is
   used as training data to fit the model.  The out-of-bag

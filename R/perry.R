@@ -13,7 +13,7 @@
 #' The idea is that developers write easy-to-use methods for end users to 
 #' leverage the prediction error estimation framework for their models.  A 
 #' typical \code{perry} method consists of the following two parts: first the 
-#' data is extracted from the model, then function \code{\link{perryFit}} is 
+#' data are extracted from the model, then function \code{\link{perryFit}} is 
 #' called to perform prediction error estimation.  The programming effort of 
 #' implementing prediction error estimation for a certain model is thus greatly 
 #' reduced.
