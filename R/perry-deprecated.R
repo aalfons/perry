@@ -77,7 +77,7 @@ fortify.perry <- function(model, data, select = NULL,
     model <- subset(model, select=select)
     if(reps) {
         PE <- as.data.frame(model$reps)
-        if(is.null(PE)) stop("replications not available")
+        if(nrow(PE) == 0) stop("replications not available")
     } else PE <- as.data.frame(t(model$pe))
     if(npe(model) == 0) stop("empty prediction error object")
     # stack selected results on top of each other

@@ -16,7 +16,7 @@ setupPerryPlot.perry <- function(object, select = NULL, reps = NULL,
   object <- subset(object, select = select)
   if (reps) {
     PE <- as.data.frame(object$reps)
-    if (is.null(PE)) stop("replications not available")
+    if (nrow(PE) == 0) stop("replications not available")
   } else PE <- as.data.frame(t(object$pe))
   if (npe(object) == 0) stop("empty prediction error object")
   # stack selected results on top of each other
