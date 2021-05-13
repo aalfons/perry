@@ -1,30 +1,28 @@
 Changes in perry version 0.3.0
 
-    + Function perryReshape() now contains an argument for tuning parameters.  
+    + Function perryReshape() now contains an argument for tuning parameters.
       If supplied, an object of class "perryTuning" is returned.
-    
+
     + Moved perry() methods to new package perryExamples.
-    
+
     + Bugfix in perrySelect() when names need to be adjusted.
-    
+
     + Bugfix in reperry() and subset(): final model is now removed.
-    
+
     + Removed deprecated wrapper functions repCV(), repRS() and bootPE().
-    
-    + Added function lmridge for illustration purposes.
 
 
 
 Changes in perry version 0.2.0
 
-    + New argument 'final' in perryTuning() to include final model with optimal 
+    + New argument 'final' in perryTuning() to include final model with optimal
       combination of tuning paramters.
-    
+
     + Wrapper functions repCV(), repRS() and bootPE() are now deprecated.
 
 
 
 Changes in perry version 0.1.1
 
-    + Plots are no longer using the opts() function from package ggplot2, which 
+    + Plots are no longer using the opts() function from package ggplot2, which
       is deprecated since ggplot2 version 0.9.2.

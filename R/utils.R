@@ -91,7 +91,7 @@ defaultFitNames <- function(m) {
 ## call a function by either
 # 1) simply evaluating a supplied function for the basic arguments if there are
 #    no additional arguments in list format
-# 2) evaluating a supplied function with 'do.call' if there are additional 
+# 2) evaluating a supplied function with 'do.call' if there are additional
 #    arguments in list format
 doCall <- function(fun, ..., args = list()) {
     if(length(args) == 0) {
@@ -104,6 +104,7 @@ hasComponent <- function(x, name) name %in% names(x)
 
 # check if a generic function has a method for a certain class
 # function name needs to be supplied instead of the function itself
+#' @importFrom utils getS3method
 hasMethod <- function(fun, class) {
     !is.null(getS3method(fun, class, optional=TRUE))
 }

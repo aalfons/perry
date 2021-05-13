@@ -3,7 +3,7 @@
 #         Erasmus Universiteit Rotterdam
 # --------------------------------------
 
-#' @S3method print cvFolds
+#' @export
 print.cvFolds <- function(x, ...) {
   # print general information
   cvText <- getPrefix(x)
@@ -26,7 +26,7 @@ print.cvFolds <- function(x, ...) {
   invisible(x)
 }
 
-#' @S3method print randomSplits
+#' @export
 print.randomSplits <- function(x, ...) {
   # print general information
   if(x$R == 1) {
@@ -46,7 +46,7 @@ print.randomSplits <- function(x, ...) {
   invisible(x)
 }
 
-#' @S3method print bootSamples
+#' @export
 print.bootSamples <- function(x, ...) {
   # print general information
   if(x$R == 1) {
@@ -66,9 +66,8 @@ print.bootSamples <- function(x, ...) {
   invisible(x)
 }
 
-#' @S3method print perry
-#' @S3method print summary.perry
-print.perry <- print.summary.perry <- function(x, ...) {
+#' @export
+print.perry <- function(x, ...) {
   # print cross-validation results
   cat(getPrefix(x$splits), "results:\n")
   print(x$pe, ...)
@@ -76,9 +75,11 @@ print.perry <- print.summary.perry <- function(x, ...) {
   invisible(x)
 }
 
-#' @S3method print perrySelect
-#' @S3method print summary.perrySelect
-print.perrySelect <- print.summary.perrySelect <- function(x, results = TRUE, 
+#' @export
+print.summary.perry <- print.perry
+
+#' @export
+print.perrySelect <- function(x, results = TRUE,
                                                            best = TRUE, ...) {
   # print cross-validation results if requested
   if(isTRUE(results)) {
@@ -99,10 +100,12 @@ print.perrySelect <- print.summary.perrySelect <- function(x, results = TRUE,
   invisible(x)
 }
 
-#' @S3method print perryTuning
-#' @S3method print summary.perryTuning
-print.perryTuning <- print.summary.perryTuning <- function(x, results = NULL, 
-                                                           best = TRUE, 
+#' @export
+print.summary.perrySelect <- print.perrySelect
+
+#' @export
+print.perryTuning <- function(x, results = NULL,
+                                                           best = TRUE,
                                                            final = TRUE, ...) {
   # print cross-validation results if requested
   if(is.null(results)) results <- nrow(x$pe) <= 10
@@ -128,6 +131,9 @@ print.perryTuning <- print.summary.perryTuning <- function(x, results = NULL,
   # return object invisibly
   invisible(x)
 }
+
+#' @export
+print.summary.perryTuning <- print.perryTuning
 
 
 ## get prefix for print methods
