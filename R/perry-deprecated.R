@@ -3,13 +3,16 @@
 #         Erasmus Universiteit Rotterdam
 # --------------------------------------
 
-#' Convert resampling-based prediction error results into a data frame for
-#' plotting
+
+#' Deprecated functions in package \pkg{perry}
 #'
-#' Extract all necessary information for plotting from resampling-based
-#' prediction error results and store it in a data frame.
+#' These functions are provided for compatibility with older versions only, and
+#' may be defunct as soon as the next release.
 #'
-#' @method fortify perry
+#' \code{fortify} extracts all necessary information for plotting from
+#' resampling-based prediction error results and store it in a data frame.
+#'
+#' @name perry-deprecated
 #'
 #' @param model  an object inheriting from class \code{"perry"} or
 #' \code{"perrySelect"} that contains prediction error results.
@@ -58,10 +61,16 @@
 #' @keywords utilities
 #'
 #' @import ggplot2
+
+NULL
+
+
+#' @rdname perry-deprecated
 #' @export
 
 fortify.perry <- function(model, data, select = NULL,
         reps = model$splits$R > 1, seFactor = NA, ...) {
+    .Deprecated("setupPerryPlot")
     # initializations
     reps <- isTRUE(reps)
     # extract subset of models
@@ -97,12 +106,12 @@ fortify.perry <- function(model, data, select = NULL,
 }
 
 
-#' @rdname fortify.perry
-#' @method fortify perrySelect
+#' @rdname perry-deprecated
 #' @export
 
 fortify.perrySelect <- function(model, data, subset = NULL, select = NULL,
         reps = model$splits$R > 1, seFactor = model$seFactor, ...) {
+    .Deprecated("setupPerryPlot")
     # initializations
     reps <- isTRUE(reps)
     # extract subset of models
@@ -146,11 +155,11 @@ fortify.perrySelect <- function(model, data, subset = NULL, select = NULL,
 }
 
 
-#' @rdname fortify.perry
-#' @method fortify perryTuning
+#' @rdname perry-deprecated
 #' @export
 
 fortify.perryTuning <- function(model, data, ...) {
+    .Deprecated("setupPerryPlot")
     # adjust column specifying the model in case of only one tuning parameter
     if(ncol(model$tuning) == 1) fits(model) <- model$tuning[, 1]
     # call method for class "perrySelect"
