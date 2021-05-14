@@ -76,8 +76,9 @@ fortify.perry <- function(model, data, select = NULL,
     # extract subset of models
     model <- subset(model, select=select)
     if(reps) {
-        PE <- as.data.frame(model$reps)
-        if(nrow(PE) == 0) stop("replications not available")
+        PE <- model$reps
+        if (is.null(PE)) stop("replications not available")
+        else PE <- as.data.frame(PE)
     } else PE <- as.data.frame(t(model$pe))
     if(npe(model) == 0) stop("empty prediction error object")
     # stack selected results on top of each other
@@ -86,6 +87,8 @@ fortify.perry <- function(model, data, select = NULL,
     peNames <- peNames(model)
     n <- nrow(PE)
     Fit <- data.frame(Fit=rep.int(fitName, n))
+    # no column for conditional plots if there is only one method with default
+    # name
     if(isTRUE(peNames == peName)) PE <- cbind(Fit, PE)
     else {
         PE <- lapply(peNames,
