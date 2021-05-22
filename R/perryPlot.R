@@ -182,8 +182,6 @@ boxPlot <- function(object, mapping = NULL, facets = object$facets, ...) {
     if (is.null(mapping)) {
         mapping <- aes_string(x = "Fit", y = "PE", group = "Fit")
     }
-    # define default axis label
-    if (is.null(ylab)) ylab <- "Prediction error"
     # generate plot
     p <- ggplot(object$data, mapping) + geom_boxplot(...) +
         labs(x = NULL, y = "Prediction error")

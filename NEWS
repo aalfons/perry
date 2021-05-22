@@ -1,5 +1,8 @@
 Changes in perry version 0.3.0
 
+    + New function setupPerryPlot() is used to extract and prepare the relevant
+      information for plots.
+
     + Function perryReshape() now contains an argument for tuning parameters.
       If supplied, an object of class "perryTuning" is returned.
 
