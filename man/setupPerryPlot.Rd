@@ -9,14 +9,20 @@
 \usage{
 setupPerryPlot(object, ...)
 
-\method{setupPerryPlot}{perry}(object, select = NULL, reps = NULL, seFactor = 1, ...)
+\method{setupPerryPlot}{perry}(
+  object,
+  which = c("box", "density", "dot"),
+  select = NULL,
+  seFactor = NA,
+  ...
+)
 
 \method{setupPerryPlot}{perrySelect}(
   object,
+  which = c("box", "density", "dot", "line"),
   subset = NULL,
   select = NULL,
-  reps = NULL,
-  seFactor = NULL,
+  seFactor = object$seFactor,
   ...
 )
 
@@ -30,13 +36,18 @@ setupPerryPlot(object, ...)
 be passed down to the \code{"perrySelect"} method.  For the other methods,
 additional arguments are currently ignored.}
 
+\item{which}{a character string specifying the type of plot to
+prepare.  Possible values are \code{"box"} to prepare a box plot,
+\code{"density"} to prepare a smooth density plot, \code{"dot"} to prepare
+a dot plot, or \code{"line"} to prepare a plot of the (average) results for
+each model as a connected line (for objects inheriting from class
+\code{"perrySelect"}).  Note that the first two plots are only meaningful
+in case of repeated resampling.  The default is to use \code{"box"} in case
+of repeated resampling and \code{"dot"} otherwise.  In any case, partial
+string matching allows supply abbreviations of the accepted values.}
+
 \item{select}{a character, integer or logical vector indicating the columns
 of prediction error results to be prepared for plotting.}
-
-\item{reps}{a logical indicating whether to prepare the results from all
-replications (\code{TRUE}) or the aggregated results (\code{FALSE}).  The
-former is suitable for box plots or smooth density plots, while the latter
-is suitable for dot plots or line plots (see \code{\link{perryPlot}}).}
 
 \item{seFactor}{a numeric value giving the multiplication factor of the
 standard error for displaying error bars in dot plots or line plots.  Error
@@ -63,11 +74,14 @@ components:
     returned if possible to compute).}
   }
   }
-  \item{\code{reps}}{a logical indicating whether the results from all
-  replications or the aggregated results have been prepared.}
+  \item{\code{which}}{a character string specifying the type of plot.}
+  \item{\code{grouped}}{a logical indicating whether density plots should
+  be grouped due to multiple model fits (only returned in case of density
+  plots for the \code{"perryTuning"} and \code{"perryTuning"} methods).}
   \item{\code{includeSE}}{a logical indicating whether error bars based on
-  standard errors are available (only returned in case of aggregated
-  results).}
+  standard errors are available (only returned in case of dot plots or line
+  plots).}
+  \item{\code{mapping}}{default aesthetic mapping for the plots.}
   \item{\code{facets}}{default faceting formula for the plots (not returned
   in case of only one column of prediction error results with the default
   name).}
@@ -97,36 +111,37 @@ folds <- cvFolds(nrow(coleman), K = 5, R = 10)
 # perform cross-validation for an LS regression model
 fitLm <- lm(Y ~ ., data = coleman)
 cvLm <- perry(fitLm, splits = folds,
-    cost = rtmspe, trim = 0.1)
+              cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an MM regression model
 fitLmrob <- lmrob(Y ~ ., data = coleman, maxit.scale = 500)
 cvLmrob <- perry(fitLmrob, splits = folds,
-    cost = rtmspe, trim = 0.1)
+                 cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an LTS regression model
 fitLts <- ltsReg(Y ~ ., data = coleman)
 cvLts <- perry(fitLts, splits = folds,
-    cost = rtmspe, trim = 0.1)
+               cost = rtmspe, trim = 0.1)
 
 # combine results into one object
-cv <- perrySelect(LS = cvLm, MM = cvLmrob, LTS = cvLts)
+cv <- perrySelect(LS = cvLm, MM = cvLmrob, LTS = cvLts,
+                  .selectBest = "min")
 cv
 
 ## convert MM regression results to data frame for plotting
 # all replications for box plot
-cvLmrobBox <- setupPerryPlot(cvLmrob, reps = TRUE)
+cvLmrobBox <- setupPerryPlot(cvLmrob, which = "box")
 perryPlot(cvLmrobBox)
 # aggregated results for dot plot
-cvLmrobDot <- setupPerryPlot(cvLmrob, reps = FALSE, seFactor = 2)
+cvLmrobDot <- setupPerryPlot(cvLmrob, which = "dot", seFactor = 2)
 perryPlot(cvLmrobDot)
 
 ## convert combined results to data frame for plotting
 # all replications for box plot
-cvBox <- setupPerryPlot(cv, reps = TRUE)
+cvBox <- setupPerryPlot(cv, which = "box")
 perryPlot(cvBox)
 # aggregated results for dot plot
-cvDot <- setupPerryPlot(cv, reps = FALSE, seFactor = 2)
+cvDot <- setupPerryPlot(cv, which = "dot", seFactor = 2)
 perryPlot(cvDot)
 }
 \seealso{

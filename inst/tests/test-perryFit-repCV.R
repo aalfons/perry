@@ -34,9 +34,9 @@ lmFit <- lm(yy~x)
 
 test_that("univariate response yields correct \"perry\" object", {
         ## MM-regression
-        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y, 
+        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y,
             splits=folds, cost=rtmspe)
-        
+
         expect_is(lmrobCV, "perry")
         # check prediction error
         lmrobPE <- lmrobCV$pe
@@ -55,11 +55,11 @@ test_that("univariate response yields correct \"perry\" object", {
         lmrobYHat <- lmrobCV$yHat
         expect_is(lmrobYHat, "list")
         expect_equal(length(lmrobYHat), R)
-        
+
         ## reweighted and raw LTS
-        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds, 
+        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds,
             predictArgs=list(fit="both"), cost=rtmspe)
-        
+
         expect_is(ltsCV, "perry")
         # check prediction error
         ltsPE <- ltsCV$pe
@@ -84,7 +84,7 @@ test_that("univariate response yields correct \"perry\" object", {
 test_that("multivariate response yields correct \"perry\" object", {
         ## multivariate LS regression
         lmCV <- perryFit(lmFit, data=lmFit$model, y=yy, splits=folds)
-        
+
         expect_is(lmCV, "perry")
         # check prediction error
         lmPE <- lmCV$pe

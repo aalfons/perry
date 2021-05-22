@@ -34,9 +34,9 @@ lmFit <- lm(yy~x)
 
 test_that("univariate response yields correct \"perry\" object", {
         ## MM-regression
-        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y, 
+        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y,
             splits=folds, cost=rtmspe)
-        
+
         expect_is(lmrobCV, "perry")
         # check prediction error
         lmrobPE <- lmrobCV$pe
@@ -52,11 +52,11 @@ test_that("univariate response yields correct \"perry\" object", {
         lmrobYHat <- lmrobCV$yHat
         expect_is(lmrobYHat, "list")
         expect_equal(length(lmrobYHat), R)
-        
+
         ## reweighted and raw LTS
-        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds, 
+        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds,
             predictArgs=list(fit="both"), cost=rtmspe)
-        
+
         expect_is(ltsCV, "perry")
         # check prediction error
         ltsPE <- ltsCV$pe
@@ -76,21 +76,21 @@ test_that("univariate response yields correct \"perry\" object", {
 
 test_that("standard error for univariate response gives correct vector", {
         ## MM-regression
-        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y, splits=folds, 
+        lmrobCV <- perryFit(lmrobFit, data=xy, y=xy$y, splits=folds,
             cost=rtmspe, costArgs=list(includeSE=TRUE))
-        
+
         expect_is(lmrobCV, "perry")
         # check standard error
         lmrobSE <- lmrobCV$se
         expect_is(lmrobSE, "numeric")
         expect_equal(length(lmrobSE), 1)
         expect_false(any(is.na(lmrobSE)))
-        
+
         ## reweighted and raw LTS
-        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds, 
-            predictArgs=list(fit="both"), cost=rtmspe, 
+        ltsCV <- perryFit(ltsFit, x=x, y=y, splits=folds,
+            predictArgs=list(fit="both"), cost=rtmspe,
             costArgs=list(includeSE=TRUE))
-        
+
         expect_is(ltsCV, "perry")
         # check standard error
         ltsSE <- ltsCV$se
@@ -102,7 +102,7 @@ test_that("standard error for univariate response gives correct vector", {
 test_that("multivariate response yields correct \"perry\" object", {
         ## multivariate LS regression
         lmCV <- perryFit(lmFit, data=lmFit$model, y=yy, splits=folds)
-        
+
         expect_is(lmCV, "perry")
         # check prediction error
         lmPE <- lmCV$pe
@@ -122,9 +122,9 @@ test_that("multivariate response yields correct \"perry\" object", {
 
 test_that("standard error for multivariate response gives correct vector", {
         ## multivariate LS regression
-        lmCV <- perryFit(lmFit, data=lmFit$model, y=yy, splits=folds, 
+        lmCV <- perryFit(lmFit, data=lmFit$model, y=yy, splits=folds,
             costArgs=list(includeSE=TRUE))
-        
+
         expect_is(lmCV, "perry")
         # check standard error
         lmSE <- lmCV$se

@@ -10,14 +10,19 @@
 #'
 #' @param object  an object inheriting from class \code{"perry"} or
 #' \code{"perrySelect"} that contains prediction error results.
+#' @param which  a character string specifying the type of plot to
+#' prepare.  Possible values are \code{"box"} to prepare a box plot,
+#' \code{"density"} to prepare a smooth density plot, \code{"dot"} to prepare
+#' a dot plot, or \code{"line"} to prepare a plot of the (average) results for
+#' each model as a connected line (for objects inheriting from class
+#' \code{"perrySelect"}).  Note that the first two plots are only meaningful
+#' in case of repeated resampling.  The default is to use \code{"box"} in case
+#' of repeated resampling and \code{"dot"} otherwise.  In any case, partial
+#' string matching allows supply abbreviations of the accepted values.
 #' @param subset  a character, integer or logical vector indicating the subset
 #' of models to be prepared for plotting.
 #' @param select  a character, integer or logical vector indicating the columns
 #' of prediction error results to be prepared for plotting.
-#' @param reps  a logical indicating whether to prepare the results from all
-#' replications (\code{TRUE}) or the aggregated results (\code{FALSE}).  The
-#' former is suitable for box plots or smooth density plots, while the latter
-#' is suitable for dot plots or line plots (see \code{\link{perryPlot}}).
 #' @param seFactor  a numeric value giving the multiplication factor of the
 #' standard error for displaying error bars in dot plots or line plots.  Error
 #' bars in those plots can be suppressed by setting this to \code{NA}.
@@ -42,11 +47,14 @@
 #'     returned if possible to compute).}
 #'   }
 #'   }
-#'   \item{\code{reps}}{a logical indicating whether the results from all
-#'   replications or the aggregated results have been prepared.}
+#'   \item{\code{which}}{a character string specifying the type of plot.}
+#'   \item{\code{grouped}}{a logical indicating whether density plots should
+#'   be grouped due to multiple model fits (only returned in case of density
+#'   plots for the \code{"perryTuning"} and \code{"perryTuning"} methods).}
 #'   \item{\code{includeSE}}{a logical indicating whether error bars based on
-#'   standard errors are available (only returned in case of aggregated
-#'   results).}
+#'   standard errors are available (only returned in case of dot plots or line
+#'   plots).}
+#'   \item{\code{mapping}}{default aesthetic mapping for the plots.}
 #'   \item{\code{facets}}{default faceting formula for the plots (not returned
 #'   in case of only one column of prediction error results with the default
 #'   name).}
@@ -82,11 +90,12 @@ setupPerryPlot <- function(object, ...) UseMethod("setupPerryPlot")
 #' @method setupPerryPlot perry
 #' @export
 
-setupPerryPlot.perry <- function(object, select = NULL, reps = NULL,
-                                 seFactor = 1, ...) {
+setupPerryPlot.perry <- function(object, which = c("box", "density", "dot"),
+                                 select = NULL, seFactor = NA, ...) {
   # initializations
-  if (is.null(reps)) reps <- object$splits$R > 1
-  else reps <- isTRUE(reps)
+  if (object$splits$R > 1) which <- match.arg(which)
+  else which <- "dot"
+  reps <- which %in% c("box", "density")
   # extract subset of models
   object <- subset(object, select = select)
   if (reps) {
@@ -125,8 +134,9 @@ setupPerryPlot.perry <- function(object, select = NULL, reps = NULL,
     }
   }
   # construct object to return
-  out <- list(data = PE, reps = reps)
+  out <- list(data = PE, which = which)
   if (!is.null(includeSE)) out$includeSE <- includeSE
+  out$mapping <- getMapping(which, grouped = FALSE, includeSE = includeSE)
   if (!is.null(facets)) out$facets <- facets
   class(out) <- "setupPerryPlot"
   out
@@ -137,12 +147,19 @@ setupPerryPlot.perry <- function(object, select = NULL, reps = NULL,
 #' @method setupPerryPlot perrySelect
 #' @export
 
-setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
-                                       reps = NULL, seFactor = NULL, ...) {
+setupPerryPlot.perrySelect <- function(object,
+                                       which = c("box", "density",
+                                                 "dot", "line"),
+                                       subset = NULL, select = NULL,
+                                       seFactor = object$seFactor, ...) {
   # initializations
-  if (is.null(reps)) reps <- object$splits$R > 1
-  else reps <- isTRUE(reps)
-  if (is.null(seFactor)) seFactor <- object$seFactor
+  if (object$splits$R > 1) which <- match.arg(which)
+  else {
+    choices <- eval(formals()[["which"]])
+    if (identical(which, choices)) which <- "dot"
+    else which <- match.arg(which, c("dot", "line"))
+  }
+  reps <- which %in% c("box", "density")
   # extract subset of models
   object <- subset(object, subset = subset, select = select)
   fits <- fits(object)
@@ -174,7 +191,11 @@ setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
     names(PE) <- c("Fit", "Name", peName)
     facets <- ~ Name
   }
-  # add data for error bars unless all replications are requested
+  # for density plots, check whether they should be grouped
+  if (which == "density") {
+    grouped <- nlevels(PE[, "Fit"]) > 1 || length(unique(PE[, "Fit"])) > 1
+  } else grouped <- NULL
+  # add data for error bars for dot and line plots
   if (reps) includeSE <- NULL
   else {
     includeSE <- !is.null(seFactor) && !is.na(seFactor) &&
@@ -186,8 +207,11 @@ setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
     }
   }
   # construct object to return
-  out <- list(data = PE, reps = reps)
+  out <- list(data = PE, which = which)
+  if (!is.null(grouped)) out$grouped <- grouped
   if (!is.null(includeSE)) out$includeSE <- includeSE
+  out$mapping <- getMapping(which, grouped = grouped, includeSE = includeSE)
+  if (!is.null(facets)) out$facets <- facets
   # -----
   # For "perryTuning" objects, information on the tuning parameters is added.
   # It would be cleaner to do this in the "perryTuning method", but it is a
@@ -197,7 +221,6 @@ setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
   # -----
   if (!is.null(object$tuning)) out$tuning <- object$tuning
   # -----
-  if (!is.null(facets)) out$facets <- facets
   class(out) <- "setupPerryPlot"
   out
 }
@@ -214,4 +237,23 @@ setupPerryPlot.perryTuning <- function(object, ...) {
   if (ncol(tuning) == 1) fits(object) <- tuning[, 1]
   # call method for class "perrySelect"
   setupPerryPlot.perrySelect(object, ...)
+}
+
+
+## utility functions
+
+getMapping <- function(which, grouped = NULL, includeSE = NULL) {
+  # define default aesthetic mapping for the different plots
+  if (which == "box") {
+    mapping <- aes_string(x = "Fit", y = "PE", group = "Fit")
+  } else if (which == "density") {
+    if (grouped) mapping <- aes_string(x = "PE", group = "Fit", color = "Fit")
+    else mapping <- aes_string(x = "PE")
+  } else {
+    if (includeSE) {
+      mapping <- aes_string(x = "Fit", y = "PE", ymin = "Lower", ymax = "Upper")
+    } else mapping <- aes_string(x = "Fit", y = "PE")
+  }
+  # return default aesthetic mapping
+  mapping
 }

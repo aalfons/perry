@@ -22,12 +22,12 @@ folds <- cvFolds(n, K, R)
 
 # 50% subsets
 fit50 <- ltsReg(Y ~ ., data = coleman, alpha = 0.5)
-cv50 <- perry(fit50, splits = folds, fit = "both", 
+cv50 <- perry(fit50, splits = folds, fit = "both",
     cost = rtmspe, trim = 0.1)
 
 # 75% subsets
 fit75 <- ltsReg(Y ~ ., data = coleman, alpha = 0.75)
-cv75 <- perry(fit75, splits = folds, fit = "both", 
+cv75 <- perry(fit75, splits = folds, fit = "both",
     cost = rtmspe, trim = 0.1)
 
 # combine results into one object
@@ -39,7 +39,7 @@ cv <- perrySelect("0.5" = cv50, "0.75" = cv75)
 test_that("subsetting \"perry\" object yields correct subset", {
         select <- "reweighted"
         sub <- subset(cv50, select=select)
-        
+
         expect_is(sub, "perry")
         expect_equal(peNames(sub), select)
         # check prediction error
@@ -66,7 +66,7 @@ test_that("subsetting \"perrySelect\" object yields correct subset", {
         subset <- 1
         select <- "reweighted"
         sub <- subset(cv, subset=subset, select=select)
-        
+
         expect_is(sub, "perrySelect")
         expect_equal(fits(sub), fits(cv)[subset, drop=TRUE])
         expect_equal(peNames(sub), select)

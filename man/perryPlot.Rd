@@ -15,7 +15,7 @@ perryPlot(object, ...)
 
 \method{perryPlot}{perry}(
   object,
-  method = c("box", "density", "dot"),
+  which = c("box", "density", "dot"),
   select = NULL,
   seFactor = NA,
   ...
@@ -23,20 +23,14 @@ perryPlot(object, ...)
 
 \method{perryPlot}{perrySelect}(
   object,
-  method = c("box", "density", "dot", "line"),
+  which = c("box", "density", "dot", "line"),
   subset = NULL,
   select = NULL,
   seFactor = object$seFactor,
   ...
 )
 
-\method{perryPlot}{setupPerryPlot}(
-  object,
-  method = c("box", "density", "dot", "line"),
-  mapping = NULL,
-  facets = object$facets,
-  ...
-)
+\method{perryPlot}{setupPerryPlot}(object, mapping = object$mapping, facets = object$facets, ...)
 
 \method{autoplot}{perry}(object, ...)
 
@@ -63,7 +57,7 @@ to be passed down to \code{\link[ggplot2]{geom_boxplot}},
 For the methods of \code{plot} or \code{autoplot}, additional arguments to
 be passed down to \code{perryPlot}.}
 
-\item{method}{a character string specifying the type of plot.  Possible
+\item{which}{a character string specifying the type of plot.  Possible
 values are \code{"box"} to create a box plot, \code{"density"} to create a
 smooth density plot, \code{"dot"} to create a dot plot, or \code{"line"} to
 plot the (average) results for each model as a connected line (for objects
@@ -118,31 +112,32 @@ folds <- cvFolds(nrow(coleman), K = 5, R = 10)
 # perform cross-validation for an LS regression model
 fitLm <- lm(Y ~ ., data = coleman)
 cvLm <- perry(fitLm, splits = folds,
-    cost = rtmspe, trim = 0.1)
+              cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an MM regression model
 fitLmrob <- lmrob(Y ~ ., data = coleman, maxit.scale = 500)
 cvLmrob <- perry(fitLmrob, splits = folds,
-    cost = rtmspe, trim = 0.1)
+                 cost = rtmspe, trim = 0.1)
 
 # perform cross-validation for an LTS regression model
 fitLts <- ltsReg(Y ~ ., data = coleman)
 cvLts <- perry(fitLts, splits = folds,
-    cost = rtmspe, trim = 0.1)
+               cost = rtmspe, trim = 0.1)
 
 # combine results into one object
-cv <- perrySelect(LS = cvLm, MM = cvLmrob, LTS = cvLts)
+cv <- perrySelect(LS = cvLm, MM = cvLmrob, LTS = cvLts,
+                  .selectBest = "min")
 cv
 
 # plot results for the MM regression model
-plot(cvLmrob, method = "box")
-plot(cvLmrob, method = "density")
-plot(cvLmrob, method = "dot", seFactor = 2)
+plot(cvLmrob, which = "box")
+plot(cvLmrob, which = "density")
+plot(cvLmrob, which = "dot", seFactor = 2)
 
 # plot combined results
-plot(cv, method = "box")
-plot(cv, method = "density")
-plot(cv, method = "dot", seFactor = 2)
+plot(cv, which = "box")
+plot(cv, which = "density")
+plot(cv, which = "dot", seFactor = 2)
 }
 \seealso{
 \code{\link{setupPerryPlot}},
