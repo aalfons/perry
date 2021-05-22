@@ -71,6 +71,9 @@ components:
   \item{\code{facets}}{default faceting formula for the plots (not returned
   in case of only one column of prediction error results with the default
   name).}
+  \item{\code{tuning}}{a data frame containing the grid of tuning parameter
+  values for which the prediction error was estimated (only returned for the
+  \code{"perryTuning"} method).}
 }
 }
 \description{

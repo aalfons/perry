@@ -50,6 +50,9 @@
 #'   \item{\code{facets}}{default faceting formula for the plots (not returned
 #'   in case of only one column of prediction error results with the default
 #'   name).}
+#'   \item{\code{tuning}}{a data frame containing the grid of tuning parameter
+#'   values for which the prediction error was estimated (only returned for the
+#'   \code{"perryTuning"} method).}
 #' }
 #'
 #' @note Duplicate indices in \code{subset} or \code{select} are removed such
@@ -196,8 +199,13 @@ setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
 #' @export
 
 setupPerryPlot.perryTuning <- function(object, ...) {
+  #initializations
+  tuning <- object$tuning
   # adjust column specifying the model in case of only one tuning parameter
-  if(ncol(object$tuning) == 1) fits(object) <- object$tuning[, 1]
+  if (ncol(tuning) == 1) fits(object) <- tuning[, 1]
   # call method for class "perrySelect"
-  setupPerryPlot.perrySelect(object, ...)
+  out <- setupPerryPlot.perrySelect(object, ...)
+  # add information on tuning parameters
+  out$tuning <- tuning
+  out
 }
