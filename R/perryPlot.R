@@ -232,7 +232,7 @@ dotPlot <- function(object, mapping = NULL, facets = object$facets, ...) {
     # generate plot
     p <- ggplot(object$data, mapping)
     if (includeSE) p <- p + geom_pointrange(...)
-    else p <- p + geom_point(...)
+    else p <- p + local_geom_point(...)
     p <- p + labs(x = NULL, y = "Prediction error")
     if (!is.null(facets)) {
         # split plot into different panels
@@ -241,6 +241,9 @@ dotPlot <- function(object, mapping = NULL, facets = object$facets, ...) {
     }
     p
 }
+
+# local geom to override size of points to match geom_pointrange()
+local_geom_point <- function(..., size = 8/3) geom_point(..., size = size)
 
 # ----------
 
