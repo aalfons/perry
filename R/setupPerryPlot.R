@@ -188,6 +188,15 @@ setupPerryPlot.perrySelect <- function(object, subset = NULL, select = NULL,
   # construct object to return
   out <- list(data = PE, reps = reps)
   if (!is.null(includeSE)) out$includeSE <- includeSE
+  # -----
+  # For "perryTuning" objects, information on the tuning parameters is added.
+  # It would be cleaner to do this in the "perryTuning method", but it is a
+  # bit of a hack to do it here to make sure that the proper subset of the
+  # tuning parameters is taken.  Otherwise the 'subset' argument also needs to
+  # be added to the "perryTuning" method and it becomes more complicated.
+  # -----
+  if (!is.null(object$tuning)) out$tuning <- object$tuning
+  # -----
   if (!is.null(facets)) out$facets <- facets
   class(out) <- "setupPerryPlot"
   out
@@ -204,8 +213,5 @@ setupPerryPlot.perryTuning <- function(object, ...) {
   # adjust column specifying the model in case of only one tuning parameter
   if (ncol(tuning) == 1) fits(object) <- tuning[, 1]
   # call method for class "perrySelect"
-  out <- setupPerryPlot.perrySelect(object, ...)
-  # add information on tuning parameters
-  out$tuning <- tuning
-  out
+  setupPerryPlot.perrySelect(object, ...)
 }
