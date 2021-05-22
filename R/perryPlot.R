@@ -36,16 +36,9 @@
 #' supplied, \code{\link[ggplot2]{facet_wrap}} or
 #' \code{\link[ggplot2]{facet_grid}} is called depending on whether the formula
 #' is one-sided or two-sided.
-#' @param \dots  for the generic function \code{perryPlot}, additional
-#' arguments to be passed down to methods.  For the \code{"perry"} and
-#' \code{"perrySelect"} methods of \code{perryPlot}, additional arguments
-#' to be passed down to the \code{"setupPerryPlot"} method.  For the
-#' \code{"setupPerryPlot"} method of \code{perryPlot}, additional arguments
-#' to be passed down to \code{\link[ggplot2]{geom_boxplot}},
-#' \code{\link[ggplot2]{geom_density}}, \code{\link[ggplot2]{geom_pointrange}}
-#' (or \code{\link[ggplot2]{geom_point}}), or \code{\link[ggplot2]{geom_line}}.
-#' For the methods of \code{plot} or \code{autoplot}, additional arguments to
-#' be passed down to \code{perryPlot}.
+#' @param \dots  additional arguments to be passed down, eventually to
+#' \code{\link[ggplot2]{geom_boxplot}}, \code{\link[ggplot2]{geom_density}},
+#' \code{\link[ggplot2]{geom_pointrange}}, or \code{\link[ggplot2]{geom_line}}.
 #'
 #' @return
 #' An object of class \code{"ggplot"} (see \code{\link[ggplot2]{ggplot}}).
@@ -194,10 +187,9 @@ densityPlot <- function(object, mapping = object$mapping,
 dotPlot <- function(object, mapping = object$mapping,
                     facets = object$facets, ...) {
     # generate plot
-    p <- ggplot(object$data, mapping)
-    if (object$includeSE) p <- p + geom_pointrange(...)
-    else p <- p + local_geom_point(...)
-    p <- p + labs(x = NULL, y = "Prediction error")
+    p <- ggplot(object$data, mapping) +
+        geom_pointrange(...) +
+        labs(x = NULL, y = "Prediction error")
     if (!is.null(facets)) {
         # split plot into different panels
         if (length(facets) == 2) p <- p + facet_wrap(facets)
@@ -211,10 +203,10 @@ dotPlot <- function(object, mapping = object$mapping,
 
 linePlot <- function(object, mapping = object$mapping, facets = object$facets, ...) {
     # generate plot
-    p <- ggplot(object$data, mapping) + geom_line(...)
-    if (object$includeSE) p <- p + geom_pointrange(...)
-    else p <- p + local_geom_point(...)
-    p <- p + labs(x = NULL, y = "Prediction error")
+    p <- ggplot(object$data, mapping) +
+        local_geom_line(...) +
+        geom_pointrange(...) +
+        labs(x = NULL, y = "Prediction error")
     if (!is.null(facets)) {
         # split plot into different panels
         if (length(facets) == 2) p <- p + facet_wrap(facets)
@@ -226,5 +218,7 @@ linePlot <- function(object, mapping = object$mapping, facets = object$facets, .
 
 ## utility functions
 
-# local geom to override size of points to match geom_pointrange()
-local_geom_point <- function(..., size = 8/3) geom_point(..., size = size)
+# local geom to avoid warning
+local_geom_line <- function(..., fatten) {
+    geom_line(...)
+}

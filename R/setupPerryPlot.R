@@ -252,7 +252,9 @@ getMapping <- function(which, grouped = NULL, includeSE = NULL) {
   } else {
     if (includeSE) {
       mapping <- aes_string(x = "Fit", y = "PE", ymin = "Lower", ymax = "Upper")
-    } else mapping <- aes_string(x = "Fit", y = "PE")
+    } else {
+      mapping <- aes_string(x = "Fit", y = "PE", ymin = "PE", ymax = "PE")
+    }
   }
   # return default aesthetic mapping
   mapping
