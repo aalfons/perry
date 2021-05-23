@@ -43,8 +43,7 @@ a dot plot, or \code{"line"} to prepare a plot of the (average) results for
 each model as a connected line (for objects inheriting from class
 \code{"perrySelect"}).  Note that the first two plots are only meaningful
 in case of repeated resampling.  The default is to use \code{"box"} in case
-of repeated resampling and \code{"dot"} otherwise.  In any case, partial
-string matching allows supply abbreviations of the accepted values.}
+of repeated resampling and \code{"dot"} otherwise.}
 
 \item{select}{a character, integer or logical vector indicating the columns
 of prediction error results to be prepared for plotting.}
@@ -77,7 +76,7 @@ components:
   \item{\code{which}}{a character string specifying the type of plot.}
   \item{\code{grouped}}{a logical indicating whether density plots should
   be grouped due to multiple model fits (only returned in case of density
-  plots for the \code{"perryTuning"} and \code{"perryTuning"} methods).}
+  plots for the \code{"perrySelect"} and \code{"perryTuning"} methods).}
   \item{\code{includeSE}}{a logical indicating whether error bars based on
   standard errors are available (only returned in case of dot plots or line
   plots).}

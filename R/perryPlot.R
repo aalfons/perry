@@ -20,9 +20,7 @@
 #' plot the (average) results for each model as a connected line (for objects
 #' inheriting from class \code{"perrySelect"}).  Note that the first two plots
 #' are only meaningful in case of repeated resampling.  The default is to use
-#' \code{"box"} in case of repeated resampling and \code{"dot"} otherwise.  In
-#' any case, partial string matching allows supply abbreviations of the
-#' accepted values.
+#' \code{"box"} in case of repeated resampling and \code{"dot"} otherwise.
 #' @param subset  a character, integer or logical vector indicating the subset
 #' of models for which to plot the prediction error results.
 #' @param select  a character, integer or logical vector indicating the columns
