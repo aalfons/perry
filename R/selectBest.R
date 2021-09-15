@@ -4,46 +4,46 @@
 # --------------------------------------
 
 ## Model selection criteria based on prediction loss
-## 
+##
 ## Determine the best model based on prediction loss.
-## 
-## \code{selectMin} selects the model with the smallest prediction loss.  
-## 
-## \code{selectHastie} is useful for nested models or for models where a 
-## tuning parameter controls the complexity of the model (e.g., penalized 
-## regression).  It selects the most parsimonious model whose prediction error 
-## is no larger than \code{seFactor} standard errors above the prediction error 
-## of the best model.  In particular a one-standard-error rule is frequently 
+##
+## \code{selectMin} selects the model with the smallest prediction loss.
+##
+## \code{selectHastie} is useful for nested models or for models where a
+## tuning parameter controls the complexity of the model (e.g., penalized
+## regression).  It selects the most parsimonious model whose prediction error
+## is no larger than \code{seFactor} standard errors above the prediction error
+## of the best model.  In particular a one-standard-error rule is frequently
 ## applied.
-## 
+##
 ## @rdname selectBest
 ## @name selectBest
-## 
-## @param x  a numeric vector containing the estimated prediction errors for 
+##
+## @param x  a numeric vector containing the estimated prediction errors for
 ## the models.
-## @param se  a numeric vector containing the estimated standard errors of the 
+## @param se  a numeric vector containing the estimated standard errors of the
 ## prediction loss for the models.
-## @param seFactor  a numeric value giving the multiplication factor of the 
+## @param seFactor  a numeric value giving the multiplication factor of the
 ## standard error.
-## 
+##
 ## @return An integer giving the index of the best model.
-## 
-## @note These functions are designed to be supplied to 
+##
+## @note These functions are designed to be supplied to
 ## \code{\link{perrySelect}} or \code{\link{perryTuning}}.
-## 
+##
 ## @author Andreas Alfons
-## 
-## @references 
-## Hastie, T., Tibshirani, R. and Friedman, J. (2009) \emph{The Elements of 
-## Statistical Learning: Data Mining, Inference, and Prediction}.  Springer, 
+##
+## @references
+## Hastie, T., Tibshirani, R. and Friedman, J. (2009) \emph{The Elements of
+## Statistical Learning: Data Mining, Inference, and Prediction}.  Springer,
 ## 2nd edition.
-## 
+##
 ## @seealso \code{\link{perrySelect}}, \code{\link{perryTuning}}
-## 
+##
 ## @keywords utilities
-## 
+##
 ## NULL
-## 
+##
 ## @rdname selectBest
 ## @export
 selectMin <- function(x) which.min(x)
@@ -62,7 +62,7 @@ selectHastie <- function(x, se, seFactor = 1) {
 #   out <- which(c(TRUE, (diff(x[seqI]) + seFactor * se[seqI[-1]]) < 0))
 #   tail(out, 1)
 # }
-# 
+#
 # selectRelChange <- function(x, se, seFactor = 1, threshold = 0.001) {
 #   # find models with large enough relative change
 #   i <- which.min(x)
@@ -74,6 +74,8 @@ selectHastie <- function(x, se, seFactor = 1) {
 
 ## select the best model
 selectBest <- function(pe, se, method = c("min", "hastie"), seFactor = NA) {
+  ## FIXME: if 'seFactor' is NA or 'se' contains only NA's,
+  # the output of "selectBest" should be "min"
   # initializations
   method <- match.arg(method)
   # find best model
