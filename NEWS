@@ -1,3 +1,8 @@
+Changes in perry version 0.3.1
+
+    + Added examples again using package perryExamples.
+
+
 Changes in perry version 0.3.0
 
     + New function setupPerryPlot() is used to extract and prepare the relevant
