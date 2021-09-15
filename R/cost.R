@@ -56,7 +56,7 @@
 #'
 #' @examples
 #' # fit an MM-regression model
-#' library("perryExamples")
+#' library("robustbase")
 #' data("coleman")
 #' fit <- lmrob(Y~., data=coleman)
 #'

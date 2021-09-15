@@ -61,7 +61,7 @@ are computed from the respective standard errors of \code{mspe} and
 }
 \examples{
 # fit an MM-regression model
-library("perryExamples")
+library("robustbase")
 data("coleman")
 fit <- lmrob(Y~., data=coleman)
 
