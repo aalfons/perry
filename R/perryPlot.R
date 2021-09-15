@@ -55,8 +55,6 @@
 #' \code{\link[ggplot2]{ggplot}}, \code{\link[ggplot2]{autoplot}},
 #' \code{\link[graphics]{plot}}
 #'
-#' @example inst/doc/examples/example-perryPlot.R
-#'
 #' @keywords hplot
 #'
 #' @import ggplot2

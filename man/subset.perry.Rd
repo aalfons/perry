@@ -10,15 +10,15 @@
 \method{subset}{perrySelect}(x, subset = NULL, select = NULL, ...)
 }
 \arguments{
-\item{x}{an object inheriting from class \code{"perry"} or 
+\item{x}{an object inheriting from class \code{"perry"} or
 \code{"perrySelect"} that contains prediction error results.}
 
-\item{select}{a character, integer or logical vector indicating the 
+\item{select}{a character, integer or logical vector indicating the
 prediction error results to be extracted.}
 
 \item{\dots}{currently ignored.}
 
-\item{subset}{a character, integer or logical vector indicating the subset 
+\item{subset}{a character, integer or logical vector indicating the subset
 of models for which to keep the prediction error results.}
 }
 \value{
@@ -28,40 +28,11 @@ An object similar to \code{x} containing just the selected results.
 Extract subsets of resampling-based prediction error results.
 }
 \note{
-Duplicate indices in \code{subset} or \code{select} are removed such 
+Duplicate indices in \code{subset} or \code{select} are removed such
 that all models and prediction error results are unique.
 }
-\examples{
-library("perryExamples")
-data("coleman")
-set.seed(1234)  # set seed for reproducibility
-
-## set up folds for cross-validation
-folds <- cvFolds(nrow(coleman), K = 5, R = 10)
-
-## compare raw and reweighted LTS estimators for
-## 50\% and 75\% subsets
-
-# 50\% subsets
-fit50 <- ltsReg(Y ~ ., data = coleman, alpha = 0.5)
-cv50 <- perry(fit50, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.1)
-
-# 75\% subsets
-fit75 <- ltsReg(Y ~ ., data = coleman, alpha = 0.75)
-cv75 <- perry(fit75, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.1)
-
-# combine results into one object
-cv <- perrySelect("0.5" = cv50, "0.75" = cv75)
-cv
-
-# extract reweighted LTS results with 50\% subsets
-subset(cv50, select = "reweighted")
-subset(cv, subset = c(TRUE, FALSE), select = "reweighted")
-}
 \seealso{
-\code{\link{perryFit}}, \code{\link{perrySelect}}, 
+\code{\link{perryFit}}, \code{\link{perrySelect}},
 \code{\link{perryTuning}}, \code{\link{subset}}
 }
 \author{

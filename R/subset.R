@@ -4,33 +4,31 @@
 # --------------------------------------
 
 #' Subsetting resampling-based prediction error results
-#' 
-#' Extract subsets of resampling-based prediction error results.  
-#' 
+#'
+#' Extract subsets of resampling-based prediction error results.
+#'
 #' @method subset perry
-#' 
-#' @param x  an object inheriting from class \code{"perry"} or 
+#'
+#' @param x  an object inheriting from class \code{"perry"} or
 #' \code{"perrySelect"} that contains prediction error results.
-#' @param subset  a character, integer or logical vector indicating the subset 
+#' @param subset  a character, integer or logical vector indicating the subset
 #' of models for which to keep the prediction error results.
-#' @param select  a character, integer or logical vector indicating the 
+#' @param select  a character, integer or logical vector indicating the
 #' prediction error results to be extracted.
 #' @param \dots  currently ignored.
-#' 
+#'
 #' @return An object similar to \code{x} containing just the selected results.
-#' 
-#' @note Duplicate indices in \code{subset} or \code{select} are removed such 
+#'
+#' @note Duplicate indices in \code{subset} or \code{select} are removed such
 #' that all models and prediction error results are unique.
-#' 
+#'
 #' @author Andreas Alfons
-#' 
-#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#'
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}},
 #' \code{\link{perryTuning}}, \code{\link{subset}}
-#' 
-#' @example inst/doc/examples/example-subset.R
-#' 
+#'
 #' @keywords utilities
-#' 
+#'
 #' @export
 
 subset.perry <- function(x, select = NULL, ...) {
@@ -97,7 +95,7 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
     x$se <- se
     # extract the CV replicates for the models to keep
     if(!is.null(reps)) {
-      # get list indices of replicates for each model, select the list 
+      # get list indices of replicates for each model, select the list
       # components to keep, and flatten the list to an index vector
       indices <- split(seq_len(nrow(reps)), reps$Fit)[subset]
       indices <- unlist(indices, use.names=FALSE)
@@ -116,7 +114,7 @@ subset.perrySelect <- function(x, subset = NULL, select = NULL, ...) {
     fits <- fits[subset]  # models to keep
     haveFactor <- is.factor(fits)
     if(haveFactor) {
-      # for a factor, unused levels should be dropped and 
+      # for a factor, unused levels should be dropped and
       # remaining levels should be in the right order
       fits <- as.character(fits)
       fits <- factor(fits, levels=fits)

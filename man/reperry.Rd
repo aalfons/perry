@@ -13,61 +13,32 @@ reperry(object, ...)
 \method{reperry}{perrySelect}(object, cost = rmspe, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{"perry"} or 
+\item{object}{an object inheriting from class \code{"perry"} or
 \code{"perrySelect"} that contains prediction error results.}
 
-\item{\dots}{for the generic function, additional arguments to be passed 
-down to methods.  For the methods,  additional arguments to be passed to the 
+\item{\dots}{for the generic function, additional arguments to be passed
+down to methods.  For the methods,  additional arguments to be passed to the
 prediction loss function \code{cost}.}
 
-\item{cost}{a cost function measuring prediction loss.  It should expect 
-the observed values of the response to be passed as the first argument and 
-the predicted values as the second argument, and must return either a 
-non-negative scalar value, or a list with the first component containing 
-the prediction error and the second component containing the standard 
-error.  The default is to use the root mean squared prediction error 
+\item{cost}{a cost function measuring prediction loss.  It should expect
+the observed values of the response to be passed as the first argument and
+the predicted values as the second argument, and must return either a
+non-negative scalar value, or a list with the first component containing
+the prediction error and the second component containing the standard
+error.  The default is to use the root mean squared prediction error
 (see \code{\link{cost}}).}
 }
 \value{
-An object similar to \code{object} containing the results for the 
+An object similar to \code{object} containing the results for the
 new measure of prediction loss.
 }
 \description{
-Recompute prediction error measures for previously obtained objects that 
-contain resampling-based prediction error results.  This is useful for 
+Recompute prediction error measures for previously obtained objects that
+contain resampling-based prediction error results.  This is useful for
 computing a different measure of prediction loss.
 }
-\examples{
-library("perryExamples")
-data("coleman")
-set.seed(1234)  # set seed for reproducibility
-
-## set up folds for cross-validation
-folds <- cvFolds(nrow(coleman), K = 5, R = 10)
-
-## compare raw and reweighted LTS estimators for 50\% and 75\%
-## subsets based on their RTMSPE with 25\% trimming
-
-# 50\% subsets
-fit50 <- ltsReg(Y ~ ., data = coleman, alpha = 0.5)
-cv50 <- perry(fit50, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.25)
-
-# 75\% subsets
-fit75 <- ltsReg(Y ~ ., data = coleman, alpha = 0.75)
-cv75 <- perry(fit75, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.25)
-
-# combine results into one object
-cv <- perrySelect("0.5" = cv50, "0.75" = cv75)
-cv
-
-## recompute the RTMSPE with 10\% trimming
-reperry(cv50, cost = rtmspe, trim = 0.1)
-reperry(cv, cost = rtmspe, trim = 0.1)
-}
 \seealso{
-\code{\link{perryFit}}, \code{\link{perryTuning}}, 
+\code{\link{perryFit}}, \code{\link{perryTuning}},
 \code{\link{perrySelect}}
 }
 \author{

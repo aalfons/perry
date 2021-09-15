@@ -74,20 +74,6 @@ following components:
 Reshape resampling-based prediction error results into an object of class
 \code{"perrySelect"} with only one column of results.
 }
-\examples{
-library("perryExamples")
-data("coleman")
-
-# perform cross-validation for an LTS regression model
-fit <- ltsReg(Y ~ ., data = coleman)
-folds <- foldControl(K = 5, R = 10)
-cv <- perry(fit, splits = folds, fit = "both",
-            cost = rtmspe, trim = 0.1, seed = 1234)
-
-# compare original and reshaped object
-cv
-perryReshape(cv)
-}
 \references{
 Hastie, T., Tibshirani, R. and Friedman, J. (2009) \emph{The Elements of
 Statistical Learning: Data Mining, Inference, and Prediction}.  Springer,

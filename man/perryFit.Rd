@@ -225,38 +225,6 @@ second element specifying the argument name for the response (the default is
 to use \code{c("x", "y")}).  It should be noted that the \code{formula} or
 \code{data} arguments take precedence over \code{x}.
 }
-\examples{
-library("perryExamples")
-data("coleman")
-set.seed(1234)  # set seed for reproducibility
-
-## via model fit
-# fit an MM regression model
-fit <- lmrob(Y ~ ., data=coleman)
-# perform cross-validation
-perryFit(fit, data = coleman, y = coleman$Y,
-         splits = foldControl(K = 5, R = 10),
-         cost = rtmspe, costArgs = list(trim = 0.1),
-         seed = 1234)
-
-## via model fitting function
-# perform cross-validation
-# note that the response is extracted from 'data' in
-# this example and does not have to be supplied
-perryFit(lmrob, formula = Y ~ ., data = coleman,
-         splits = foldControl(K = 5, R = 10),
-         cost = rtmspe, costArgs = list(trim = 0.1),
-         seed = 1234)
-
-## via function call
-# set up function call
-call <- call("lmrob", formula = Y ~ .)
-# perform cross-validation
-perryFit(call, data = coleman, y = coleman$Y,
-         splits = foldControl(K = 5, R = 10),
-         cost = rtmspe, costArgs = list(trim = 0.1),
-         seed = 1234)
-}
 \seealso{
 \code{\link{perrySelect}}, \code{\link{perryTuning}},
 \code{\link{cvFolds}}, \code{\link{randomSplits}},

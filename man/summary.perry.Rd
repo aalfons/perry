@@ -13,51 +13,21 @@
 \method{summary}{perryTuning}(object, ...)
 }
 \arguments{
-\item{object}{an object inheriting from class \code{"perry"} or 
-\code{"perrySelect"} that contains prediction error results (note that the 
+\item{object}{an object inheriting from class \code{"perry"} or
+\code{"perrySelect"} that contains prediction error results (note that the
 latter includes objects of class \code{"perryTuning"}).}
 
 \item{\dots}{currently ignored.}
 }
 \value{
-An object of class \code{"summary.perry"}, \code{"summary.perrySelect"} or 
+An object of class \code{"summary.perry"}, \code{"summary.perrySelect"} or
 \code{"summary.perryTuning"}, depending on the class of \code{object}.
 }
 \description{
 Produce a summary of resampling-based prediction error results.
 }
-\examples{
-library("perryExamples")
-data("coleman")
-set.seed(1234)  # set seed for reproducibility
-
-## set up folds for cross-validation
-folds <- cvFolds(nrow(coleman), K = 5, R = 10)
-
-## compare raw and reweighted LTS estimators for
-## 50\% and 75\% subsets
-
-# 50\% subsets
-fit50 <- ltsReg(Y ~ ., data = coleman, alpha = 0.5)
-cv50 <- perry(fit50, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.1)
-
-# 75\% subsets
-fit75 <- ltsReg(Y ~ ., data = coleman, alpha = 0.75)
-cv75 <- perry(fit75, splits = folds, fit = "both",
-              cost = rtmspe, trim = 0.1)
-
-# combine results into one object
-cv <- perrySelect("0.5" = cv50, "0.75" = cv75)
-cv
-
-# summary of the results with the 50\% subsets
-summary(cv50)
-# summary of the combined results
-summary(cv)
-}
 \seealso{
-\code{\link{perryFit}}, \code{\link{perrySelect}}, 
+\code{\link{perryFit}}, \code{\link{perrySelect}},
 \code{\link{perryTuning}}, \code{\link{summary}}
 }
 \author{

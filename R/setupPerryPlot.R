@@ -76,8 +76,6 @@
 #' \code{\link[ggplot2]{ggplot}}, \code{\link[ggplot2]{autoplot}},
 #' \code{\link[graphics]{plot}}
 #'
-#' @example inst/doc/examples/example-setupPerryPlot.R
-#'
 #' @keywords utilities
 #'
 #' @export

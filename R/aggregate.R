@@ -4,43 +4,41 @@
 # --------------------------------------
 
 #' Aggregate resampling-based prediction error results
-#' 
-#' Compute summary statistics of resampling-based prediction error results.  
-#' 
+#'
+#' Compute summary statistics of resampling-based prediction error results.
+#'
 #' @method aggregate perry
-#' 
-#' @param x  an object inheriting from class \code{"perry"} or 
-#' \code{"perrySelect"} that contains prediction error results (note that the 
+#'
+#' @param x  an object inheriting from class \code{"perry"} or
+#' \code{"perrySelect"} that contains prediction error results (note that the
 #' latter includes objects of class \code{"perryTuning"}).
 #' @param FUN  a function to compute the summary statistics.
-#' @param select  a character, integer or logical vector indicating the columns 
+#' @param select  a character, integer or logical vector indicating the columns
 #' of prediction error results for which to compute the summary statistics.
-#' @param \dots  for the \code{"perryTuning"} method, additional arguments to 
-#' be passed to the \code{"perrySelect"} method.  Otherwise additional 
+#' @param \dots  for the \code{"perryTuning"} method, additional arguments to
+#' be passed to the \code{"perrySelect"} method.  Otherwise additional
 #' arguments to be passed to \code{FUN}.
-#' 
-#' @return 
-#' The \code{"perry"} method returns a vector or matrix of aggregated 
-#' prediction error results, depending on whether \code{FUN} returns a single 
+#'
+#' @return
+#' The \code{"perry"} method returns a vector or matrix of aggregated
+#' prediction error results, depending on whether \code{FUN} returns a single
 #' value or a vector.
-#' 
-#' For the other methods, a data frame containing the aggregated 
-#' prediction error results for each model is returned.  In the case of the 
-#' \code{"perryTuning"} method, the data frame contains the combinations of 
+#'
+#' For the other methods, a data frame containing the aggregated
+#' prediction error results for each model is returned.  In the case of the
+#' \code{"perryTuning"} method, the data frame contains the combinations of
 #' tuning parameters rather than a column describing the models.
-#' 
-#' @note Duplicate indices in \code{subset} or \code{select} are removed such 
+#'
+#' @note Duplicate indices in \code{subset} or \code{select} are removed such
 #' that all models and prediction error results are unique.
-#' 
+#'
 #' @author Andreas Alfons
-#' 
-#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}}, 
+#'
+#' @seealso \code{\link{perryFit}}, \code{\link{perrySelect}},
 #' \code{\link{perryTuning}}, \code{\link[stats]{aggregate}}
-#' 
-#' @example inst/doc/examples/example-aggregate.R
-#' 
+#'
 #' @keywords utilities
-#' 
+#'
 #' @export
 #' @import stats
 
