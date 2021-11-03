@@ -13,7 +13,6 @@ The DESCRIPTION file:
 \packageDESCRIPTION{perry}
 \packageIndices{perry}
 }
-}
 \author{
 \packageAuthor{perry}
 
