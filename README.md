@@ -17,7 +17,7 @@ install.packages("perry")
 
 ## Report issues and request features
 
-If you experience any bugs or issues or if you have any suggestions for additional features, please submit an issue via the *Issues* tab of this repository.  Please have a look at existing issues first to see if your problem or feature request has already been discussed.
+If you experience any bugs or issues or if you have any suggestions for additional features, please submit an issue via the [*Issues*](https://github.com/aalfons/perry/issues) tab of this repository.  Please have a look at existing issues first to see if your problem or feature request has already been discussed.
 
 
 ## Contribute to the package
